@@ -28,7 +28,7 @@ Before starting, ensure:
 
 1. **Services are running:**
    ```bash
-   docker compose -f local.yml up foia_coach_api
+   docker compose up foia_coach_api
    ```
 
 2. **OpenAI provider is configured:**
@@ -41,7 +41,7 @@ Before starting, ensure:
 
 3. **OpenAI vector store exists:**
    ```bash
-   docker compose -f local.yml run --rm foia_coach_api \
+   docker compose run --rm foia_coach_api \
      python manage.py gemini_create_store --provider=openai
    ```
 
@@ -113,7 +113,7 @@ Best for: **10+ files**
    Batch import script for Tennessee PDF resources.
 
    Usage:
-   docker compose -f local.yml run --rm foia_coach_api \
+   docker compose run --rm foia_coach_api \
      python manage.py shell < batch_import_tennessee.py
    """
 
@@ -218,7 +218,7 @@ Best for: **10+ files**
 
    if created_count > 0:
        print(f"\nNext step: Upload to OpenAI provider")
-       print(f"  docker compose -f local.yml run --rm foia_coach_api \\")
+       print(f"  docker compose run --rm foia_coach_api \\")
        print(f"    python manage.py upload_resources_to_provider \\")
        print(f"    --provider=openai --state={JURISDICTION_ABBREV}")
    ```
@@ -234,13 +234,13 @@ Best for: **10+ files**
 
    ```bash
    # Option 1: Copy to media directory
-   docker compose -f local.yml cp /path/to/tennessee-pdfs/. \
+   docker compose cp /path/to/tennessee-pdfs/. \
      foia_coach_api:/app/media/temp_import/
 
    # Then update PDF_DIRECTORY in script to:
    # PDF_DIRECTORY = "/app/media/temp_import"
 
-   # Option 2: Use Docker volume mount (add to local.yml)
+   # Option 2: Use Docker volume mount (add to docker-compose.yml)
    # Add under foia_coach_api.volumes:
    #   - /path/to/tennessee-pdfs:/import:ro
 
@@ -250,7 +250,7 @@ Best for: **10+ files**
 
 4. **Run the import:**
    ```bash
-   docker compose -f local.yml run --rm foia_coach_api \
+   docker compose run --rm foia_coach_api \
      python manage.py shell < batch_import_tennessee.py
    ```
 
@@ -434,7 +434,7 @@ Create a custom management command for reusable imports:
 3. **Run the command:**
    ```bash
    # Dry run first to preview
-   docker compose -f local.yml run --rm foia_coach_api \
+   docker compose run --rm foia_coach_api \
      python manage.py import_jurisdiction_pdfs \
      --state=TN \
      --jurisdiction-id=155 \
@@ -442,7 +442,7 @@ Create a custom management command for reusable imports:
      --dry-run
 
    # Actual import
-   docker compose -f local.yml run --rm foia_coach_api \
+   docker compose run --rm foia_coach_api \
      python manage.py import_jurisdiction_pdfs \
      --state=TN \
      --jurisdiction-id=155 \
@@ -459,7 +459,7 @@ Once your JurisdictionResource records are created, upload them to the OpenAI pr
 ### Upload All Tennessee Resources
 
 ```bash
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py upload_resources_to_provider \
   --provider=openai \
   --state=TN
@@ -475,21 +475,21 @@ This command will:
 
 ```bash
 # Dry run to preview
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py upload_resources_to_provider \
   --provider=openai \
   --state=TN \
   --dry-run
 
 # Force re-upload (if resources already uploaded)
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py upload_resources_to_provider \
   --provider=openai \
   --state=TN \
   --force
 
 # Upload without state filter (all resources)
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py upload_resources_to_provider \
   --provider=openai
 ```
@@ -530,7 +530,7 @@ Check the admin interface or logs to monitor progress.
 
 ```bash
 # Test OpenAI provider with a query
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_query \
   "What is the FOIA response deadline in Tennessee?" \
   --state=TN \
@@ -556,7 +556,7 @@ curl -X POST http://localhost:8001/api/v1/query/query/ \
 ### Check via Django Shell
 
 ```bash
-docker compose -f local.yml run --rm foia_coach_api python manage.py shell
+docker compose run --rm foia_coach_api python manage.py shell
 ```
 
 ```python
@@ -595,7 +595,7 @@ for item in status_counts:
 **Solution:**
 ```bash
 # Check if resources exist
-docker compose -f local.yml run --rm foia_coach_api python manage.py shell
+docker compose run --rm foia_coach_api python manage.py shell
 
 >>> from apps.jurisdiction.models import JurisdictionResource
 >>> JurisdictionResource.objects.filter(jurisdiction_abbrev='TN').count()
@@ -608,14 +608,14 @@ docker compose -f local.yml run --rm foia_coach_api python manage.py shell
 **Solution:**
 1. Check logs:
    ```bash
-   docker compose -f local.yml logs foia_coach_api | grep -i openai
+   docker compose logs foia_coach_api | grep -i openai
    ```
 
 2. Check error messages in admin interface
 
 3. Manually retry upload:
    ```bash
-   docker compose -f local.yml run --rm foia_coach_api \
+   docker compose run --rm foia_coach_api \
      python manage.py upload_resources_to_provider \
      --provider=openai \
      --state=TN \
@@ -629,14 +629,14 @@ docker compose -f local.yml run --rm foia_coach_api python manage.py shell
 **Solution:**
 ```bash
 # Check environment variable
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py shell -c "from django.conf import settings; print(settings.OPENAI_REAL_API_ENABLED)"
 
 # Set in .envs/.local/.foia_coach_api
 OPENAI_REAL_API_ENABLED=true
 
 # Restart services
-docker compose -f local.yml restart foia_coach_api
+docker compose restart foia_coach_api
 ```
 
 ### Issue: File upload fails in Docker
@@ -648,9 +648,9 @@ Use Docker volume mount or copy files to container:
 
 ```bash
 # Method 1: Docker cp
-docker compose -f local.yml cp /local/path/pdfs/. foia_coach_api:/app/media/import/
+docker compose cp /local/path/pdfs/. foia_coach_api:/app/media/import/
 
-# Method 2: Add volume mount to local.yml
+# Method 2: Add volume mount to docker-compose.yml
 # Under foia_coach_api.volumes:
 #   - /local/path/pdfs:/import:ro
 ```
@@ -664,7 +664,7 @@ The import scripts check for duplicates by `display_name`. If you get duplicates
 
 ```bash
 # Remove duplicates via Django shell
-docker compose -f local.yml run --rm foia_coach_api python manage.py shell
+docker compose run --rm foia_coach_api python manage.py shell
 
 >>> from apps.jurisdiction.models import JurisdictionResource
 >>> from django.db.models import Count
@@ -693,7 +693,7 @@ After successful import and upload:
 
 1. **Test queries** to ensure resources are working:
    ```bash
-   docker compose -f local.yml run --rm foia_coach_api \
+   docker compose run --rm foia_coach_api \
      python manage.py gemini_query \
      "What is the FOIA process in Tennessee?" \
      --state=TN \
@@ -708,7 +708,7 @@ After successful import and upload:
 3. **Upload to additional providers** (optional):
    ```bash
    # Upload to Gemini as well
-   docker compose -f local.yml run --rm foia_coach_api \
+   docker compose run --rm foia_coach_api \
      python manage.py upload_resources_to_provider \
      --provider=gemini \
      --state=TN
@@ -730,5 +730,5 @@ After successful import and upload:
 For issues or questions:
 - Check the troubleshooting section above
 - Review Django admin error messages
-- Check Docker logs: `docker compose -f local.yml logs foia_coach_api`
+- Check Docker logs: `docker compose logs foia_coach_api`
 - Consult the main README.md for provider configuration

@@ -87,13 +87,13 @@ GEMINI_REAL_API_ENABLED=false
 
 ```bash
 # Start the service
-docker compose -f local.yml up foia_coach_api
+docker compose up foia_coach_api
 
 # Run migrations
-docker compose -f local.yml run --rm foia_coach_api python manage.py migrate
+docker compose run --rm foia_coach_api python manage.py migrate
 
 # Create provider store
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_create_store --provider=openai
 ```
 
@@ -101,15 +101,15 @@ docker compose -f local.yml run --rm foia_coach_api \
 
 ```bash
 # Test provider configuration
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider --provider=openai
 
 # Upload a resource
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_upload_resource 1 --provider=openai
 
 # Query the system
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_query "What is the FOIA deadline in Colorado?" \
     --state=CO --provider=openai
 ```
@@ -305,14 +305,14 @@ All tests use MockProvider by default to prevent API calls:
 
 ```bash
 # Run all tests
-docker compose -f local.yml run --rm foia_coach_api pytest
+docker compose run --rm foia_coach_api pytest
 
 # Run provider tests
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   pytest apps/jurisdiction/tests/test_providers.py
 
 # Run with coverage
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   pytest --cov=apps.jurisdiction
 ```
 
@@ -322,7 +322,7 @@ To test with real API providers (development only):
 
 ```bash
 # Set API enabled flag
-OPENAI_REAL_API_ENABLED=true docker compose -f local.yml run --rm foia_coach_api \
+OPENAI_REAL_API_ENABLED=true docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider --provider=openai --query="Test question"
 ```
 

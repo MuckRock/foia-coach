@@ -14,14 +14,14 @@ GEMINI_REAL_API_ENABLED=false  # ✅ API calls BLOCKED
 GEMINI_REAL_API_ENABLED=true  # ⚠️ Will consume quota!
 
 # 2. Restart service
-docker compose -f local.yml restart foia_coach_api
+docker compose restart foia_coach_api
 
 # 3. Monitor logs for warnings
-docker compose -f local.yml logs foia_coach_api -f | grep "⚠️"
+docker compose logs foia_coach_api -f | grep "⚠️"
 
 # 4. DISABLE when done
 GEMINI_REAL_API_ENABLED=false
-docker compose -f local.yml restart foia_coach_api
+docker compose restart foia_coach_api
 ```
 
 ## Why This Matters
@@ -50,14 +50,14 @@ docker compose -f local.yml restart foia_coach_api
 
 ### Running Tests (Always Safe)
 ```bash
-docker compose -f local.yml run --rm foia_coach_api pytest
+docker compose run --rm foia_coach_api pytest
 # ✅ Uses mocked API, won't consume quota
 ```
 
 ### Manual Testing
 ```bash
 # Will fail by default (safe!)
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_upload_resource 1
 
 # Error: RuntimeError: Gemini API calls are disabled...
@@ -74,7 +74,7 @@ docker compose -f local.yml run --rm foia_coach_api \
 1. **Stop immediately:**
    ```bash
    GEMINI_REAL_API_ENABLED=false
-   docker compose -f local.yml restart foia_coach_api
+   docker compose restart foia_coach_api
    ```
 
 2. **Check request count:**
@@ -86,7 +86,7 @@ docker compose -f local.yml run --rm foia_coach_api \
 
 3. **Review logs:**
    ```bash
-   docker compose -f local.yml logs foia_coach_api | grep "⚠️"
+   docker compose logs foia_coach_api | grep "⚠️"
    ```
 
 4. **Wait 24 hours** for quota reset (free tier)
@@ -102,7 +102,7 @@ See `GEMINI_API_SAFETY.md` for:
 
 ## Questions?
 
-1. Check logs: `docker compose -f local.yml logs foia_coach_api`
+1. Check logs: `docker compose logs foia_coach_api`
 2. Check settings: `echo $GEMINI_REAL_API_ENABLED`
 3. Read full docs: `GEMINI_API_SAFETY.md`
 4. Contact team lead if quota exhausted

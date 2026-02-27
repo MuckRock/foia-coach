@@ -17,10 +17,10 @@ This document provides practical examples for using the FOIA Coach API with diff
 
 ```bash
 # Start the services
-docker compose -f local.yml up foia_coach_api
+docker compose up foia_coach_api
 
 # In a new terminal, check provider status
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider --list
 ```
 
@@ -71,19 +71,19 @@ curl -X POST http://localhost:8001/api/v1/query/query/ \
 
 ```bash
 # Test default provider
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider
 
 # Test specific provider
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider --provider=openai
 
 # Test all providers
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider --all
 
 # Test with a query
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider \
     --provider=openai \
     --query="What are the FOIA fees in Texas?"
@@ -93,15 +93,15 @@ docker compose -f local.yml run --rm foia_coach_api \
 
 ```bash
 # Create store with default provider
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_create_store
 
 # Create store with specific provider
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_create_store --provider=openai
 
 # Create store with custom name
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_create_store \
     --provider=openai \
     --name="FOIA Coach Production Store"
@@ -111,15 +111,15 @@ docker compose -f local.yml run --rm foia_coach_api \
 
 ```bash
 # Upload single resource (default provider)
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_upload_resource 1
 
 # Upload with specific provider
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_upload_resource 1 --provider=openai
 
 # Force re-upload
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_upload_resource 1 --provider=openai --force
 ```
 
@@ -127,26 +127,26 @@ docker compose -f local.yml run --rm foia_coach_api \
 
 ```bash
 # Sync pending resources (default provider)
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_sync_all
 
 # Sync with specific provider
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_sync_all --provider=openai
 
 # Sync all resources (not just pending)
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_sync_all --provider=openai --all
 
 # Sync specific state
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_sync_all --provider=openai --state=CO
 
 # Sync all Colorado resources to both providers
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_sync_all --provider=openai --state=CO --all
 
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_sync_all --provider=gemini --state=CO --all
 ```
 
@@ -154,24 +154,24 @@ docker compose -f local.yml run --rm foia_coach_api \
 
 ```bash
 # Simple query (default provider)
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_query "What is the FOIA deadline?"
 
 # Query with state filter
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_query \
     "What is the response deadline?" \
     --state=CO
 
 # Query with specific provider
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_query \
     "What are the exemptions?" \
     --state=GA \
     --provider=openai
 
 # Streaming query
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_query \
     "Explain the FOIA process" \
     --stream \
@@ -402,7 +402,7 @@ def batch_upload_resources(resource_ids, provider='openai'):
     results = []
     for resource_id in resource_ids:
         cmd = [
-            'docker', 'compose', '-f', 'local.yml',
+            'docker', 'compose',
             'run', '--rm', 'foia_coach_api',
             'python', 'manage.py', 'gemini_upload_resource',
             str(resource_id),
@@ -533,7 +533,7 @@ def migrate_state_to_provider(state, from_provider, to_provider):
     for resource in resources['results']:
         resource_id = resource['id']
         cmd = [
-            'docker', 'compose', '-f', 'local.yml',
+            'docker', 'compose',
             'run', '--rm', 'foia_coach_api',
             'python', 'manage.py', 'gemini_upload_resource',
             str(resource_id),
@@ -611,7 +611,7 @@ class TestResourceUpload(TestCase):
 
 ```bash
 # Check configuration
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py shell
 
 >>> from apps.jurisdiction.services.providers.helpers import get_provider
@@ -624,11 +624,11 @@ docker compose -f local.yml run --rm foia_coach_api \
 
 ```bash
 # Test if provider is reachable
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider --provider=openai
 
 # Test with actual query
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider \
     --provider=openai \
     --query="Test connectivity"
@@ -638,7 +638,7 @@ docker compose -f local.yml run --rm foia_coach_api \
 
 ```bash
 # List resources by status
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py shell
 
 >>> from apps.jurisdiction.models import JurisdictionResource

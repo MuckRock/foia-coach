@@ -18,7 +18,7 @@ This guide walks you through setting up OpenAI and integrating it with your Svel
 ## Prerequisites
 
 - OpenAI API account with credits
-- FOIA Coach API running (`docker compose -f local.yml up`)
+- FOIA Coach API running (`docker compose up`)
 - SvelteKit app set up
 - At least one jurisdiction resource ready to upload
 
@@ -53,7 +53,7 @@ RAG_PROVIDER=openai
 
 ```bash
 # Restart to pick up new environment variables
-docker compose -f local.yml restart foia_coach_api
+docker compose restart foia_coach_api
 ```
 
 ---
@@ -64,7 +64,7 @@ The Vector Store is where OpenAI stores and indexes your documents.
 
 ```bash
 # Create the vector store
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_create_store --provider=openai
 
 # Expected output:
@@ -89,7 +89,7 @@ Now upload your jurisdiction resources to OpenAI.
 First, see what resources you have:
 
 ```bash
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py shell
 
 >>> from apps.jurisdiction.models import JurisdictionResource
@@ -106,7 +106,7 @@ Upload one resource to test:
 
 ```bash
 # Upload resource ID 1
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_upload_resource 1 --provider=openai
 
 # Expected output:
@@ -127,7 +127,7 @@ Once the test works, upload everything:
 
 ```bash
 # Upload all pending resources
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_sync_all --provider=openai --all
 
 # Expected output:
@@ -147,7 +147,7 @@ docker compose -f local.yml run --rm foia_coach_api \
 Or upload just one state:
 
 ```bash
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_sync_all --provider=openai --state=CO --all
 ```
 
@@ -158,7 +158,7 @@ docker compose -f local.yml run --rm foia_coach_api \
 ### 4.1 Test Provider Configuration
 
 ```bash
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider --provider=openai
 
 # Expected output:
@@ -186,7 +186,7 @@ docker compose -f local.yml run --rm foia_coach_api \
 ### 4.2 Test Query
 
 ```bash
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_query \
     "What is the FOIA response deadline in Colorado?" \
     --state=CO \
@@ -213,7 +213,7 @@ docker compose -f local.yml run --rm foia_coach_api \
 ### 4.3 Test Streaming Query
 
 ```bash
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_query \
     "Explain the FOIA appeal process" \
     --state=CO \
@@ -835,8 +835,8 @@ Create `src/lib/components/ProviderStatus.svelte`:
 **Solution:**
 1. Verify your API key is correct
 2. Check it's properly set in `.envs/.local/.foia_coach_api`
-3. Restart the service: `docker compose -f local.yml restart foia_coach_api`
-4. Test: `docker compose -f local.yml run --rm foia_coach_api python manage.py test_rag_provider --provider=openai`
+3. Restart the service: `docker compose restart foia_coach_api`
+4. Test: `docker compose run --rm foia_coach_api python manage.py test_rag_provider --provider=openai`
 
 ### Issue: "API Calls Disabled"
 
@@ -852,7 +852,7 @@ Create `src/lib/components/ProviderStatus.svelte`:
 **Error:** Query returns empty or says no citations
 
 **Solution:**
-1. Check resources are uploaded: `docker compose -f local.yml run --rm foia_coach_api python manage.py shell`
+1. Check resources are uploaded: `docker compose run --rm foia_coach_api python manage.py shell`
    ```python
    from apps.jurisdiction.models import JurisdictionResource
    JurisdictionResource.objects.filter(provider='openai', index_status='ready').count()

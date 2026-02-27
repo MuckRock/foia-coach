@@ -23,11 +23,11 @@ cd "$API_DIR"
 tar xzf "$TARBALL"
 
 echo "==> Running database migrations..."
-docker compose -f "$ROOT_DIR/local.yml" run --rm api \
+docker compose -f "$ROOT_DIR/docker-compose.yml" run --rm api \
   python manage.py migrate --noinput
 
 echo "==> Loading fixture into database..."
-docker compose -f "$ROOT_DIR/local.yml" run --rm api \
+docker compose -f "$ROOT_DIR/docker-compose.yml" run --rm api \
   python manage.py loaddata /app/fixtures/seed_resources.json
 
 echo ""
@@ -40,4 +40,4 @@ echo "    Since you're sharing an OpenAI API key, the vector store is"
 echo "    already populated — no upload step needed."
 echo ""
 echo "    Start the services:"
-echo "      docker compose -f local.yml up api ui postgres"
+echo "      docker compose -f docker-compose.yml up api ui postgres"

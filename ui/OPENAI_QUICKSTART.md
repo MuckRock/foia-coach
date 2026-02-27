@@ -15,13 +15,13 @@ RAG_PROVIDER=openai
 
 Restart the API:
 ```bash
-docker compose -f local.yml restart api
+docker compose restart api
 ```
 
 ## Step 2: Create OpenAI Vector Store (1 minute)
 
 ```bash
-docker compose -f local.yml run --rm api \
+docker compose run --rm api \
   python manage.py gemini_create_store --provider=openai
 ```
 
@@ -37,14 +37,14 @@ Getting or creating provider store...
 Upload all your jurisdiction resources to OpenAI:
 
 ```bash
-docker compose -f local.yml run --rm api \
+docker compose run --rm api \
   python manage.py gemini_sync_all --provider=openai --all
 ```
 
 Or just upload one state for testing:
 
 ```bash
-docker compose -f local.yml run --rm api \
+docker compose run --rm api \
   python manage.py gemini_sync_all --provider=openai --state=CO --all
 ```
 
@@ -138,7 +138,7 @@ Use the **Mock** provider for testing:
 
 **Solution:** Check that resources are uploaded:
 ```bash
-docker compose -f local.yml run --rm api python manage.py shell
+docker compose run --rm api python manage.py shell
 >>> from apps.jurisdiction.models import JurisdictionResource
 >>> JurisdictionResource.objects.filter(provider='openai', index_status='ready').count()
 ```
@@ -150,7 +150,7 @@ If the count is 0, run the upload command from Step 3.
 **Solution:**
 1. Get a new key from https://platform.openai.com/api-keys
 2. Update `.envs/.local/.api`
-3. Restart: `docker compose -f local.yml restart api`
+3. Restart: `docker compose restart api`
 
 ### CORS errors in browser console
 
@@ -192,16 +192,16 @@ You can switch providers anytime:
 
 ```bash
 # Upload resources to OpenAI
-docker compose -f local.yml run --rm api \
+docker compose run --rm api \
   python manage.py gemini_sync_all --provider=openai --all
 
 # Query from command line
-docker compose -f local.yml run --rm api \
+docker compose run --rm api \
   python manage.py gemini_query "What are FOIA fees?" \
     --provider=openai --state=CO
 
 # Test provider
-docker compose -f local.yml run --rm api \
+docker compose run --rm api \
   python manage.py test_rag_provider --provider=openai
 
 # Check provider status (in browser)

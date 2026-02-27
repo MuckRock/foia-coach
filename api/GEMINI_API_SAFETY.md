@@ -132,14 +132,14 @@ def upload_resource_to_gemini(sender, instance, created, **kwargs):
 GEMINI_REAL_API_ENABLED=true
 
 # 2. Restart container
-docker compose -f local.yml restart foia_coach_api
+docker compose restart foia_coach_api
 
 # 3. Watch logs for request count warnings
-docker compose -f local.yml logs foia_coach_api -f
+docker compose logs foia_coach_api -f
 
 # 4. DISABLE again when done!
 GEMINI_REAL_API_ENABLED=false
-docker compose -f local.yml restart foia_coach_api
+docker compose restart foia_coach_api
 ```
 
 ### During Testing
@@ -148,7 +148,7 @@ Tests are **automatically safe** - no action needed!
 
 ```bash
 # All tests use mocked API client
-docker compose -f local.yml run --rm foia_coach_api pytest
+docker compose run --rm foia_coach_api pytest
 
 # GEMINI_REAL_API_ENABLED is False in test settings
 # Signals are disconnected
@@ -159,7 +159,7 @@ docker compose -f local.yml run --rm foia_coach_api pytest
 
 ```bash
 # Safe by default (will fail if API disabled)
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_upload_resource 1
 
 # Error: RuntimeError: Gemini API calls are disabled...
@@ -252,7 +252,7 @@ GeminiFileSearchService.reset_request_tracking()
    ```bash
    # Disable API immediately
    GEMINI_REAL_API_ENABLED=false
-   docker compose -f local.yml restart foia_coach_api
+   docker compose restart foia_coach_api
    ```
 
 2. **Check request count:**
@@ -262,7 +262,7 @@ GeminiFileSearchService.reset_request_tracking()
 
 3. **Review logs for warnings:**
    ```bash
-   docker compose -f local.yml logs foia_coach_api | grep "⚠️"
+   docker compose logs foia_coach_api | grep "⚠️"
    ```
 
 ### Investigation
@@ -274,12 +274,12 @@ GeminiFileSearchService.reset_request_tracking()
 2. **Confirm tests are using mocks:**
    ```bash
    # Tests should complete in seconds, not minutes
-   docker compose -f local.yml run --rm foia_coach_api pytest -v
+   docker compose run --rm foia_coach_api pytest -v
    ```
 
 3. **Check GEMINI_REAL_API_ENABLED:**
    ```bash
-   docker compose -f local.yml exec foia_coach_api env | grep GEMINI
+   docker compose exec foia_coach_api env | grep GEMINI
    ```
 
 ### Recovery
@@ -328,7 +328,7 @@ If you suspect runaway API usage:
 
 1. **Stop all services immediately:**
    ```bash
-   docker compose -f local.yml down
+   docker compose down
    ```
 
 2. **Check Google Cloud Console** for current usage

@@ -70,7 +70,7 @@ foia-coach/
 │   ├── apps/
 │   ├── config/
 │   └── ...
-└── local.yml
+└── docker-compose.yml
 ```
 
 Then run the load script:
@@ -93,17 +93,17 @@ cd api
 tar xzf foia_coach_seed_data.tar.gz
 
 # Start the database
-docker compose -f ../local.yml up -d postgres
+docker compose up -d postgres
 
 # Run migrations and load data
-docker compose -f ../local.yml run --rm api python manage.py migrate --noinput
-docker compose -f ../local.yml run --rm api python manage.py loaddata /app/fixtures/seed_resources.json
+docker compose run --rm api python manage.py migrate --noinput
+docker compose run --rm api python manage.py loaddata /app/fixtures/seed_resources.json
 ```
 
 ## Step 4: Start the services
 
 ```bash
-docker compose -f local.yml up api ui postgres
+docker compose up api ui postgres
 ```
 
 Wait for the startup logs to settle, then open:
@@ -161,16 +161,16 @@ This creates a fresh `foia_coach_seed_data.tar.gz` that can be shared with the t
 ## Troubleshooting
 
 **"API calls are disabled"**
-Check that `OPENAI_REAL_API_ENABLED=true` is set in `.envs/.local/.api` and restart the API: `docker compose -f local.yml restart api`
+Check that `OPENAI_REAL_API_ENABLED=true` is set in `.envs/.local/.api` and restart the API: `docker compose restart api`
 
 **"Connection refused" in the UI**
-Make sure all three services are running: `docker compose -f local.yml up api ui postgres`
+Make sure all three services are running: `docker compose up api ui postgres`
 
 **CORS errors in browser console**
 The API allows requests from `http://localhost:5173` by default. If you're using a different port, update `CORS_ALLOWED_ORIGINS` in `api/config/settings/local.py`.
 
 **Database errors after loading fixture**
-Run migrations first: `docker compose -f local.yml run --rm api python manage.py migrate --noinput`, then re-load the fixture.
+Run migrations first: `docker compose run --rm api python manage.py migrate --noinput`, then re-load the fixture.
 
 **Empty responses or no citations**
 Verify resources are loaded: visit http://localhost:8001/api/v1/resources/ — you should see a list of resources. If empty, re-run the `loaddata` command from Step 3.

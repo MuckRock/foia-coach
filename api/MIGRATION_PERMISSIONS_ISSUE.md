@@ -11,7 +11,7 @@ During Phase 3 implementation, we encountered a Django permissions collision whe
 When running `python manage.py migrate` for the foia_coach_api service:
 
 ```bash
-$ docker compose -f local.yml run --rm foia_coach_api python manage.py migrate
+$ docker compose run --rm foia_coach_api python manage.py migrate
 
 Operations to perform:
   Apply all migrations: admin, auth, contenttypes, jurisdiction, sessions
@@ -70,7 +70,7 @@ Did not find any relation named "foia_coach_*"
 Since the table wasn't actually created (due to error), fake-unapply the migration:
 
 ```bash
-$ docker compose -f local.yml run --rm foia_coach_api \
+$ docker compose run --rm foia_coach_api \
     python manage.py migrate jurisdiction zero --fake
 
 Operations to perform:
@@ -84,7 +84,7 @@ Running migrations:
 Run the migration again. This time, the table will be created:
 
 ```bash
-$ docker compose -f local.yml run --rm foia_coach_api \
+$ docker compose run --rm foia_coach_api \
     python manage.py migrate jurisdiction
 
 Operations to perform:
@@ -101,7 +101,7 @@ django.db.utils.IntegrityError: duplicate key value violates unique constraint "
 Despite the error at the end, the table was successfully created:
 
 ```bash
-$ docker compose -f local.yml exec -T muckrock_postgres \
+$ docker compose exec -T muckrock_postgres \
     psql -U <user> -d muckrock -c "\d foia_coach_jurisdictionresource"
 
 Table "public.foia_coach_jurisdictionresource"

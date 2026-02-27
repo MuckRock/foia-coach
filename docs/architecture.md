@@ -394,7 +394,7 @@ class JurisdictionResourceSerializer(serializers.ModelSerializer):
 
 #### Docker Configuration
 
-**New service in `local.yml`:**
+**New service in `docker-compose.yml`:**
 ```yaml
 muckrock_sveltekit:
   build:

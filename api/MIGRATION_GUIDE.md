@@ -35,7 +35,7 @@ New provider-agnostic fields were added to `JurisdictionResource`:
 
 ```bash
 # Create database backup
-docker compose -f local.yml run --rm postgres \
+docker compose run --rm postgres \
   pg_dump -U foia_coach foia_coach > backup_$(date +%Y%m%d).sql
 ```
 
@@ -45,7 +45,7 @@ The migration automatically converts existing Gemini data:
 
 ```bash
 # Run migrations
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py migrate
 ```
 
@@ -89,15 +89,15 @@ If switching from Gemini to OpenAI, re-upload all resources:
 
 ```bash
 # Create OpenAI store
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_create_store --provider=openai
 
 # Upload all resources to OpenAI
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py gemini_sync_all --provider=openai --all
 
 # Verify
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider --provider=openai
 ```
 
@@ -171,11 +171,11 @@ If you need to rollback:
 
 ```bash
 # Rollback database migration
-docker compose -f local.yml run --rm foia_coach_api \
+docker compose run --rm foia_coach_api \
   python manage.py migrate jurisdiction 0001
 
 # Restore from backup
-docker compose -f local.yml run --rm postgres \
+docker compose run --rm postgres \
   psql -U foia_coach foia_coach < backup_20231210.sql
 ```
 
@@ -186,7 +186,7 @@ docker compose -f local.yml run --rm postgres \
 git checkout <previous_commit_hash>
 
 # Restart services
-docker compose -f local.yml restart
+docker compose restart
 ```
 
 ## Common Issues

@@ -221,17 +221,17 @@ The following Django management commands are available for administration:
 
 ### Create/Verify Gemini Store
 ```bash
-docker compose -f local.yml exec foia_coach_api python manage.py gemini_create_store
+docker compose exec foia_coach_api python manage.py gemini_create_store
 ```
 
 ### Upload Single Resource
 ```bash
-docker compose -f local.yml exec foia_coach_api python manage.py gemini_upload_resource <resource_id>
+docker compose exec foia_coach_api python manage.py gemini_upload_resource <resource_id>
 ```
 
 ### Sync All Resources
 ```bash
-docker compose -f local.yml exec foia_coach_api python manage.py gemini_sync_all
+docker compose exec foia_coach_api python manage.py gemini_sync_all
 ```
 
 Options:
@@ -241,7 +241,7 @@ Options:
 
 ### Test Query
 ```bash
-docker compose -f local.yml exec foia_coach_api python manage.py gemini_query "What is the response time in Colorado?" --state CO
+docker compose exec foia_coach_api python manage.py gemini_query "What is the response time in Colorado?" --state CO
 ```
 
 ---
@@ -366,7 +366,7 @@ print(query_result['answer'])
 
 For issues or questions:
 - GitHub: https://github.com/MuckRock/muckrock
-- Check logs: `docker compose -f local.yml logs foia_coach_api`
+- Check logs: `docker compose logs foia_coach_api`
 - Admin interface: http://localhost:8001/admin/
 
 ---

@@ -499,7 +499,7 @@ Each phase is designed to:
 4. **Test the interface** - Create simple test to verify structure
    ```bash
    # Just verify imports work
-   docker compose -f local.yml run --rm foia_coach_api python manage.py shell
+   docker compose run --rm foia_coach_api python manage.py shell
    >>> from apps.jurisdiction.services.providers import RAGProviderBase
    >>> from apps.jurisdiction.services.providers import RAGProviderFactory
    ```
@@ -529,7 +529,7 @@ Part of Phase 1: Abstract Provider Interface
 
 ```bash
 # Test imports
-docker compose -f local.yml run --rm foia_coach_api python manage.py shell
+docker compose run --rm foia_coach_api python manage.py shell
 >>> from apps.jurisdiction.services.providers import RAGProviderBase
 >>> from apps.jurisdiction.services.providers import RAGProviderFactory
 >>> RAGProviderFactory.list_providers()
@@ -554,8 +554,8 @@ docker compose -f local.yml run --rm foia_coach_api python manage.py shell
 
    Then compile:
    ```bash
-   docker compose -f local.yml run --rm foia_coach_api pip-compile requirements.in
-   docker compose -f local.yml build foia_coach_api
+   docker compose run --rm foia_coach_api pip-compile requirements.in
+   docker compose build foia_coach_api
    ```
 
 2. **Create OpenAI provider** (apps/jurisdiction/services/providers/openai_provider.py)
@@ -1027,7 +1027,7 @@ docker compose -f local.yml run --rm foia_coach_api python manage.py shell
 
 6. **Test OpenAI provider** (manual shell test)
    ```bash
-   docker compose -f local.yml run --rm foia_coach_api python manage.py shell
+   docker compose run --rm foia_coach_api python manage.py shell
    >>> from apps.jurisdiction.services.providers import RAGProviderFactory
    >>> RAGProviderFactory.list_providers()
    ['openai']
@@ -1328,14 +1328,14 @@ Part of Phase 3: Refactor Gemini to Provider Pattern
 
 ```bash
 # All automated tests use MockProvider (no API calls)
-docker compose -f local.yml run --rm foia_coach_api pytest
+docker compose run --rm foia_coach_api pytest
 
 # Manual testing with real OpenAI API (optional, for development only)
-OPENAI_REAL_API_ENABLED=true docker compose -f local.yml run --rm foia_coach_api \
+OPENAI_REAL_API_ENABLED=true docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider --provider=openai
 
 # Manual testing with real Gemini API (optional)
-GEMINI_REAL_API_ENABLED=true docker compose -f local.yml run --rm foia_coach_api \
+GEMINI_REAL_API_ENABLED=true docker compose run --rm foia_coach_api \
   python manage.py test_rag_provider --provider=gemini
 ```
 

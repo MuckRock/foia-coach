@@ -12,7 +12,7 @@ API_DIR="$(dirname "$SCRIPT_DIR")"
 ROOT_DIR="$(dirname "$API_DIR")"
 
 echo "==> Exporting database fixture..."
-docker compose -f "$ROOT_DIR/local.yml" run --rm api \
+docker compose -f "$ROOT_DIR/docker-compose.yml" run --rm api \
   python manage.py dumpdata \
   jurisdiction.JurisdictionResource \
   jurisdiction.ResourceProviderUpload \

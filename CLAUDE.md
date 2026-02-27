@@ -3,12 +3,12 @@
 ## Project Structure
 - `api/` — Django REST API backend (Python 3.11, Django 4.2, DRF)
 - `ui/` — SvelteKit frontend (Svelte 5, Vite 7, Node 20)
-- `local.yml` — Docker Compose for local development
+- `docker-compose.yml` — Docker Compose for local development
 
 ## Quick Start
 ```bash
 # Start all services
-docker compose -f local.yml up --build
+docker compose up --build
 
 # API: http://localhost:8001/api/v1/
 # UI:  http://localhost:5173
@@ -20,13 +20,13 @@ docker compose -f local.yml up --build
 ### API Tests
 Run tests inside the API container:
 ```bash
-docker compose -f local.yml exec api pytest
+docker compose exec api pytest
 ```
 
 Or run specific tests:
 ```bash
-docker compose -f local.yml exec api pytest apps/jurisdiction/tests/test_providers.py
-docker compose -f local.yml exec api pytest apps/api/tests/test_api.py::TestQueryViewSet
+docker compose exec api pytest apps/jurisdiction/tests/test_providers.py
+docker compose exec api pytest apps/api/tests/test_api.py::TestQueryViewSet
 ```
 
 Test settings are in `api/config/settings/test.py`. Tests use `--nomigrations` and `--create-db` by default (see `api/pytest.ini`).
@@ -42,13 +42,13 @@ Test settings are in `api/config/settings/test.py`. Tests use `--nomigrations` a
 
 ### Format
 ```bash
-docker compose -f local.yml exec api black .
-docker compose -f local.yml exec api isort .
+docker compose exec api black .
+docker compose exec api isort .
 ```
 
 ### Lint
 ```bash
-docker compose -f local.yml exec api pylint apps/
+docker compose exec api pylint apps/
 ```
 
 ## Architecture
@@ -81,7 +81,7 @@ See `.env.example` for all required variables. Local dev env files go in `.envs/
 
 ## Management Commands
 ```bash
-docker compose -f local.yml exec api python manage.py test_rag_provider --provider openai
-docker compose -f local.yml exec api python manage.py upload_resources_to_provider --provider openai
-docker compose -f local.yml exec api python manage.py gemini_query "your question" --state CO
+docker compose exec api python manage.py test_rag_provider --provider openai
+docker compose exec api python manage.py upload_resources_to_provider --provider openai
+docker compose exec api python manage.py gemini_query "your question" --state CO
 ```
