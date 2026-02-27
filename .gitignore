@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+.svelte-kit/
+build/
+.vite/
+
+# Environment
+.envs/
+.env
+.env.*
+!.env.example
+
+# Media & data
+api/media/
+api/foia_coach_seed_data.tar.gz
+api/fixtures/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log

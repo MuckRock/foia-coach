@@ -1,0 +1,49 @@
+volumes:
+  foia_coach_postgres_data_local: {}
+
+services:
+  api:
+    build:
+      context: ./api
+      dockerfile: ./compose/local/Dockerfile
+    image: foia_coach_api_local
+    container_name: foia_coach_api_local
+    depends_on:
+      - postgres
+    volumes:
+      - ./api:/app:z
+    env_file:
+      - ./.envs/.local/.postgres
+      - ./.envs/.local/.api
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=foia_coach
+      - POSTGRES_USER=foia_coach_user
+      - POSTGRES_PASSWORD=foia_coach_dev_password_change_in_production
+    ports:
+      - "8001:8000"
+    command: /start
+
+  ui:
+    build:
+      context: ./ui
+      dockerfile: ./compose/local/Dockerfile
+    image: foia_coach_ui_local
+    container_name: foia_coach_ui_local
+    volumes:
+      - ./ui:/app:z
+      - /app/node_modules  # Prevent host node_modules from overriding container
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host 0.0.0.0
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: foia_coach_postgres_local
+    volumes:
+      - foia_coach_postgres_data_local:/var/lib/postgresql/data
+    env_file:
+      - ./.envs/.local/.postgres
+    ports:
+      - "5433:5432"
