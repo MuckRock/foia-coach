@@ -15,7 +15,7 @@
 <div class="chat-history" bind:this={chatContainer}>
 	{#if chatStore.messages.length === 0}
 		<div class="empty-state">
-			<h2>Welcome to FOIA Coach</h2>
+			<h2>Project Moss</h2>
 			<p>Ask a question about state public records laws to get started.</p>
 		</div>
 	{:else}
@@ -26,7 +26,7 @@
 
 	{#if chatStore.isLoading}
 		<div class="loading">
-			<span>FOIA Coach is thinking...</span>
+			<span>Moss is thinking...</span>
 		</div>
 	{/if}
 </div>

@@ -56,6 +56,10 @@ nav a[aria-current='page'] {
   border-bottom-color: #2196f3;
 }
 
+table {
+  background: #fff;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
