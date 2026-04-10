@@ -5,6 +5,7 @@
 Build an interactive guide to state public records and provide coaching for document requests. The system will use Google Gemini's File Search API (RAG) to provide state-by-state guidance when requesting public records.
 
 ### Key Principles
+
 - **No automated request generation** - We provide knowledge, not language
 - **State-specific expertise** - Starting with Colorado, Georgia, and Tennessee
 - **Modular architecture** - Django API backend + SvelteKit experimental UI
@@ -43,17 +44,20 @@ Build an interactive guide to state public records and provide coaching for docu
 ### Existing Jurisdiction Models
 
 **Jurisdiction Model** (`muckrock/jurisdiction/models.py:74`)
+
 - Tracks Federal/State/Local jurisdictions
 - Fields: name, slug, abbrev, level, parent, hidden, image, public_notes, aliases
 - Related to `Law` model (OneToOne)
 - Related to `JurisdictionPage` model (OneToOne)
 
 **Law Model** (`muckrock/jurisdiction/models.py:245`)
+
 - OneToOne with Jurisdiction
 - Contains: name, shortname, citation, url, days, waiver, has_appeal
 - Additional analysis fields: law_analysis, fee_schedule, etc.
 
 **JurisdictionPage Model** (`muckrock/jurisdiction/models.py:303`)
+
 - OneToOne with Jurisdiction (state/federal only)
 - Markdown content field for jurisdiction pages
 - Has revision history
@@ -63,9 +67,11 @@ Build an interactive guide to state public records and provide coaching for docu
 ## Implementation Plan
 
 ### Phase 1: Django Model & Database Schema
+
 **Goal:** Create database structure for managing jurisdiction resources
 
 #### Tasks
+
 1. Add to existing `jurisdiction` app
 2. Design and implement `JurisdictionResource` model
 3. Create model for tracking Gemini File Search metadata
@@ -75,6 +81,7 @@ Build an interactive guide to state public records and provide coaching for docu
 7. Write basic model tests
 
 #### `JurisdictionResource` Model Design
+
 ```python
 class JurisdictionResource(models.Model):
     """Knowledge resource file associated with a jurisdiction"""
@@ -141,6 +148,7 @@ class JurisdictionResource(models.Model):
 ```
 
 #### `GeminiFileSearchStore` Model Design
+
 ```python
 class GeminiFileSearchStore(models.Model):
     """Tracks the Gemini File Search store configuration"""
@@ -163,6 +171,7 @@ class GeminiFileSearchStore(models.Model):
 ```
 
 #### Signal Handlers
+
 ```python
 # muckrock/jurisdiction/signals.py
 
@@ -190,6 +199,7 @@ def remove_resource_from_gemini(sender, instance, **kwargs):
 ```
 
 #### Deliverables
+
 - [x] Models created with proper fields and relationships
 - [x] Migrations generated and tested
 - [x] Admin interface configured
@@ -199,9 +209,11 @@ def remove_resource_from_gemini(sender, instance, **kwargs):
 ---
 
 ### Phase 2: Google Gemini Integration Service
+
 **Goal:** Build service layer for interacting with Gemini File Search API
 
 #### Tasks
+
 1. Install Google Generative AI SDK (`google-genai`)
 2. Create `gemini_service.py` module with client wrapper
 3. Implement File Search Store creation/management
@@ -214,6 +226,7 @@ def remove_resource_from_gemini(sender, instance, **kwargs):
 10. Write basic integration tests
 
 #### Service Architecture
+
 ```python
 # muckrock/jurisdiction/services/gemini_service.py
 
@@ -250,12 +263,14 @@ class GeminiFileSearchService:
 ```
 
 #### Management Commands
+
 - `inv manage "gemini_create_store"` - Create/initialize the File Search store
 - `inv manage "gemini_upload_resource <resource_id>"` - Upload single resource
 - `inv manage "gemini_sync_all"` - Sync all pending resources
 - `inv manage "gemini_query 'question' --state CO"` - Test queries
 
 #### System Instruction Design
+
 ```python
 SYSTEM_INSTRUCTION = """
 You are the State Public Records & FOIA Coach. Your role is to provide
@@ -288,6 +303,7 @@ NEVER:
 ```
 
 #### Deliverables
+
 - [x] Gemini service module implemented
 - [x] Signal handler methods (upload_resource, remove_resource) working
 - [x] Management commands created for manual operations
@@ -300,9 +316,11 @@ NEVER:
 ---
 
 ### Phase 3: Django REST API Endpoints
+
 **Goal:** Create API endpoints for the SvelteKit frontend to consume
 
 #### Tasks
+
 1. Create DRF serializers for models
 2. Implement API viewsets
 3. Add API endpoints to urls (including streaming endpoint)
@@ -314,21 +332,26 @@ NEVER:
 #### API Endpoints
 
 **Resources API**
+
 - `GET /api/v1/foia-coach/jurisdictions/` - List states with resources
 - `GET /api/v1/foia-coach/jurisdictions/<abbrev>/` - State detail with resources
 - `GET /api/v1/foia-coach/resources/` - List all resources (filtered)
 - `GET /api/v1/foia-coach/resources/<id>/` - Resource detail
 
 **Chat/Query API**
+
 - `POST /api/v1/foia-coach/query/` - Submit query to RAG system
+
   ```json
   {
     "question": "What is the response time for public records in Colorado?",
-    "state": "CO",  // optional filter
-    "context": {}   // optional additional context
+    "state": "CO", // optional filter
+    "context": {} // optional additional context
   }
   ```
+
   Response:
+
   ```json
   {
     "answer": "...",
@@ -349,10 +372,12 @@ NEVER:
   - Final event includes complete citations
 
 **Admin API** (authenticated only)
+
 - `POST /api/v1/foia-coach/admin/sync-resource/<id>/` - Trigger resource sync
 - `GET /api/v1/foia-coach/admin/sync-status/` - Get sync status
 
 #### Serializers
+
 ```python
 class JurisdictionResourceSerializer(serializers.ModelSerializer):
     jurisdiction_name = serializers.CharField(source='jurisdiction.name', read_only=True)
@@ -369,6 +394,7 @@ class JurisdictionResourceSerializer(serializers.ModelSerializer):
 ```
 
 #### Deliverables
+
 - [ ] Serializers implemented
 - [ ] Viewsets and endpoints created (including streaming endpoint)
 - [ ] API URLs configured
@@ -380,9 +406,11 @@ class JurisdictionResourceSerializer(serializers.ModelSerializer):
 ---
 
 ### Phase 4: SvelteKit Frontend Application
+
 **Goal:** Create experimental UI in separate Docker container
 
 #### Tasks
+
 1. Create SvelteKit project structure
 2. Create Dockerfile for SvelteKit dev environment
 3. Update docker-compose to add SvelteKit service
@@ -395,6 +423,7 @@ class JurisdictionResourceSerializer(serializers.ModelSerializer):
 #### Docker Configuration
 
 **New service in `docker-compose.yml`:**
+
 ```yaml
 muckrock_sveltekit:
   build:
@@ -402,7 +431,7 @@ muckrock_sveltekit:
     dockerfile: Dockerfile
   image: muckrock_foia_coach_ui
   ports:
-    - "5173:5173"  # Vite dev server
+    - "5173:5173" # Vite dev server
   volumes:
     - ./foia-coach-ui:/app
     - /app/node_modules
@@ -412,6 +441,7 @@ muckrock_sveltekit:
 ```
 
 #### SvelteKit Project Structure
+
 ```
 foia-coach-ui/
 ├── src/
@@ -439,6 +469,7 @@ foia-coach-ui/
 ```
 
 #### Key Features
+
 1. **State Selection Page**
    - Grid/list of available states (CO, GA, TN initially)
    - Show resource count and last updated
@@ -458,6 +489,7 @@ foia-coach-ui/
    - View resource metadata
 
 #### Deliverables
+
 - [ ] SvelteKit project initialized
 - [ ] Docker configuration working
 - [ ] State selection UI complete
@@ -469,9 +501,11 @@ foia-coach-ui/
 ---
 
 ### Phase 5: Initial Data & Experimentation
+
 **Goal:** Load initial resources and validate the experimental system
 
 #### Tasks
+
 1. Prepare resource files for CO, GA, TN (plain text or Markdown)
 2. Create fixtures or data loading scripts
 3. Upload and index all resources (automatic via signals or manual commands)
@@ -481,7 +515,9 @@ foia-coach-ui/
 7. Document learnings and next steps
 
 #### Resource File Preparation
+
 Partners will provide plain text or Markdown files with state-specific knowledge:
+
 - Colorado public records law guide
 - Georgia public records law guide
 - Tennessee public records law guide
@@ -489,6 +525,7 @@ Partners will provide plain text or Markdown files with state-specific knowledge
 **File Format:** Plain text (.txt) or Markdown (.md)
 
 Each file should include:
+
 - Law overview and citation
 - Response time requirements
 - Fee structures
@@ -498,6 +535,7 @@ Each file should include:
 - Best practices
 
 #### Validation Checklist
+
 - [ ] Files upload successfully to Gemini (plain text and Markdown)
 - [ ] Indexing completes via signals or manual commands
 - [ ] Queries return relevant, cited responses
@@ -509,6 +547,7 @@ Each file should include:
 - [ ] UI provides usable experience for experimentation
 
 #### Deliverables
+
 - [ ] Initial resource files loaded (plain text and Markdown)
 - [ ] Basic validation tests passing
 - [ ] Performance observations documented
@@ -522,17 +561,22 @@ Each file should include:
 ## Technical Considerations
 
 ### Environment Variables
+
 Add to `.envs/.local/.django`:
+
 ```bash
 GEMINI_API_KEY=your_api_key_here
 GEMINI_FILE_SEARCH_STORE_NAME=StatePublicRecordsStore
 ```
 
 ### Dependencies
+
 **Django (requirements.in):**
+
 - `google-genai
 
 **SvelteKit (package.json):**
+
 - `@sveltejs/kit`
 - `vite`
 - `typescript`
@@ -540,11 +584,13 @@ GEMINI_FILE_SEARCH_STORE_NAME=StatePublicRecordsStore
 - `axios` or `fetch` for API calls
 
 ### File Storage
+
 - Use Django's default file storage for uploaded resources
 - Store files in `media/jurisdiction_resources/`
 - Consider S3 storage for production
 
 ### Security Considerations
+
 - Validate file types on upload (plain text and Markdown only: .txt, .md)
 - Limit file sizes (e.g., 10MB max)
 - Sanitize filenames
@@ -554,6 +600,7 @@ GEMINI_FILE_SEARCH_STORE_NAME=StatePublicRecordsStore
 - **Note:** This is an experimental project, full production security hardening deferred
 
 ### Performance Considerations
+
 - Gemini queries may take 2-5 seconds
 - Streaming responses may provide better perceived performance
 - Signal-based uploads happen synchronously (use async Celery tasks for production)
@@ -567,6 +614,7 @@ GEMINI_FILE_SEARCH_STORE_NAME=StatePublicRecordsStore
 ## Development Workflow
 
 ### Session-by-Session Implementation
+
 Each phase should be completed in a separate Claude Code session:
 
 1. **Session 1: Phase 1** - Models, migrations, and signals
@@ -576,12 +624,14 @@ Each phase should be completed in a separate Claude Code session:
 5. **Session 5: Phase 5** - Data loading and experimentation
 
 After each session, commit the working code:
+
 ```bash
 git add .
 git commit -m "feat(foia-coach): Phase X - [description]"
 ```
 
 ### Testing Strategy (Experimental Focus)
+
 - Basic unit tests for models and core services
 - Basic integration tests for Gemini API (can use mocks)
 - Basic API endpoint tests
@@ -593,12 +643,14 @@ git commit -m "feat(foia-coach): Phase X - [description]"
 ## Success Metrics (Experimental Project)
 
 ### Phase Completion Criteria
+
 - Basic tests passing
 - Code is functional and documented
 - No critical bugs blocking experimentation
 - Learnings documented
 
 ### Evaluation Criteria
+
 - Query response accuracy (qualitative assessment)
 - Response time observations (both regular and streaming)
 - File upload and indexing reliability
@@ -660,6 +712,7 @@ git commit -m "feat(foia-coach): Phase X - [description]"
 ## Notes & Learnings
 
 ### Planning Phase Updates (2025-11-26)
+
 - **File Format Decision:** Plain text (.txt) and Markdown (.md) files
 - **Automatic Sync:** Django signals will handle automatic upload/update to Gemini on model save
 - **Experimental Nature:** This is a learning project to evaluate Gemini API, not production-ready
@@ -672,9 +725,11 @@ git commit -m "feat(foia-coach): Phase X - [description]"
   - Overall suitability for FOIA coaching use case
 
 ### Phase 2 Implementation Complete (2025-11-26)
+
 **Status: ✅ Complete**
 
 #### What Was Built
+
 1. **GeminiFileSearchService** (`muckrock/jurisdiction/services/gemini_service.py`)
    - Full Gemini File Search API integration
    - Store creation and management (`create_store()`, `get_or_create_store()`)
@@ -706,6 +761,7 @@ git commit -m "feat(foia-coach): Phase X - [description]"
    - Tests cover: initialization, store creation, upload, indexing, queries, streaming, error handling
 
 #### Technical Decisions & Solutions
+
 1. **File Storage Abstraction**
    - Implemented fallback for storage backends that don't support `.path` attribute
    - Creates temporary files when needed (e.g., InMemoryStorage in tests)
@@ -727,6 +783,7 @@ git commit -m "feat(foia-coach): Phase X - [description]"
    - Citations extracted from grounding_metadata in response
 
 #### Files Created/Modified
+
 - **Created:** `muckrock/jurisdiction/services/gemini_service.py` (460 lines)
 - **Modified:** `muckrock/jurisdiction/signals.py` (transaction.on_commit fix)
 - **Modified:** `muckrock/settings/base.py` (added Gemini API settings)
@@ -737,16 +794,17 @@ git commit -m "feat(foia-coach): Phase X - [description]"
 - **Created:** `muckrock/jurisdiction/tests/test_gemini_service.py` (319 lines)
 
 #### Key Learnings
+
 1. **Gemini Configuration:** Initially implemented with File Search corpus, but pivoted to using Google Search tool for broader access to public records information
 2. **Django Signals:** Proper transaction handling is critical when signals trigger external API calls
 3. **Testing Strategy:** Signal disconnection in test setUp is essential to prevent unwanted side effects
 4. **Error Handling:** Status tracking and logging provide good visibility into upload/index progress
 
 #### Next Steps
+
 - Proceed to Phase 3: Django REST API Endpoints
 - Evaluate query response quality and citation accuracy
 - Test with real jurisdiction resource files
 - Consider streaming vs. non-streaming performance
 
 _This section will be updated as we progress through implementation_
-

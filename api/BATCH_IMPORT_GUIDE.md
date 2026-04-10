@@ -18,6 +18,7 @@ This guide walks you through batch-importing PDF resources for a jurisdiction (e
 ## Overview
 
 The batch import process consists of three main steps:
+
 1. **Prepare** your PDF files in a local directory
 2. **Create** JurisdictionResource records for each PDF
 3. **Upload** the resources to the OpenAI provider
@@ -27,11 +28,13 @@ The batch import process consists of three main steps:
 Before starting, ensure:
 
 1. **Services are running:**
+
    ```bash
    docker compose up foia_coach_api
    ```
 
 2. **OpenAI provider is configured:**
+
    ```bash
    # Check your .envs/.local/.foia_coach_api file contains:
    export OPENAI_API_KEY=sk-...
@@ -40,6 +43,7 @@ Before starting, ensure:
    ```
 
 3. **OpenAI vector store exists:**
+
    ```bash
    docker compose run --rm foia_coach_api \
      python manage.py gemini_create_store --provider=openai
@@ -63,6 +67,7 @@ Organize your PDFs in a local directory with descriptive names:
 ```
 
 **Naming Convention (Recommended):**
+
 - Use clear, descriptive names
 - Include the state abbreviation prefix
 - Use underscores instead of spaces
@@ -77,6 +82,7 @@ Choose one of the following methods based on your batch size:
 Best for: **1-10 files**
 
 1. **Access Django Admin:**
+
    ```bash
    # Navigate to: http://localhost:8001/admin/
    # Login with your superuser credentials
@@ -264,11 +270,13 @@ Best for: **Automated/scheduled imports**
 Create a custom management command for reusable imports:
 
 1. **Create command file:**
+
    ```bash
    touch foia-coach-api/apps/jurisdiction/management/commands/import_jurisdiction_pdfs.py
    ```
 
 2. **Add the command code:**
+
    ```python
    """
    Management command to batch import PDF resources for a jurisdiction.
@@ -432,6 +440,7 @@ Create a custom management command for reusable imports:
    ```
 
 3. **Run the command:**
+
    ```bash
    # Dry run first to preview
    docker compose run --rm foia_coach_api \
@@ -466,6 +475,7 @@ docker compose run --rm foia_coach_api \
 ```
 
 This command will:
+
 - Find all active resources for Tennessee
 - Create ResourceProviderUpload records for OpenAI
 - Trigger automatic upload via signal handlers
@@ -593,6 +603,7 @@ for item in status_counts:
 **Cause:** No JurisdictionResource records created, or `is_active=False`
 
 **Solution:**
+
 ```bash
 # Check if resources exist
 docker compose run --rm foia_coach_api python manage.py shell
@@ -606,7 +617,9 @@ docker compose run --rm foia_coach_api python manage.py shell
 **Cause:** Signal handlers not processing, or OpenAI API error
 
 **Solution:**
+
 1. Check logs:
+
    ```bash
    docker compose logs foia_coach_api | grep -i openai
    ```
@@ -627,6 +640,7 @@ docker compose run --rm foia_coach_api python manage.py shell
 **Cause:** `OPENAI_REAL_API_ENABLED` not set to `true`
 
 **Solution:**
+
 ```bash
 # Check environment variable
 docker compose run --rm foia_coach_api \
@@ -692,6 +706,7 @@ docker compose run --rm foia_coach_api python manage.py shell
 After successful import and upload:
 
 1. **Test queries** to ensure resources are working:
+
    ```bash
    docker compose run --rm foia_coach_api \
      python manage.py gemini_query \
@@ -706,6 +721,7 @@ After successful import and upload:
    - Set proper ordering
 
 3. **Upload to additional providers** (optional):
+
    ```bash
    # Upload to Gemini as well
    docker compose run --rm foia_coach_api \
@@ -728,6 +744,7 @@ After successful import and upload:
 ## Support
 
 For issues or questions:
+
 - Check the troubleshooting section above
 - Review Django admin error messages
 - Check Docker logs: `docker compose logs foia_coach_api`

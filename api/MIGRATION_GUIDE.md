@@ -12,22 +12,22 @@ The multi-provider system adds support for OpenAI and other RAG providers while 
 
 New provider-agnostic fields were added to `JurisdictionResource`:
 
-| Old Field (Deprecated) | New Field | Description |
-|------------------------|-----------|-------------|
-| `gemini_file_id` | `provider_file_id` | Provider-specific file ID |
-| `gemini_display_name` | (removed) | No longer needed |
-| N/A | `provider` | Selected provider (openai/gemini/mock) |
-| N/A | `provider_store_id` | Provider-specific store ID |
-| N/A | `provider_metadata` | Provider-specific metadata (JSON) |
+| Old Field (Deprecated) | New Field           | Description                            |
+| ---------------------- | ------------------- | -------------------------------------- |
+| `gemini_file_id`       | `provider_file_id`  | Provider-specific file ID              |
+| `gemini_display_name`  | (removed)           | No longer needed                       |
+| N/A                    | `provider`          | Selected provider (openai/gemini/mock) |
+| N/A                    | `provider_store_id` | Provider-specific store ID             |
+| N/A                    | `provider_metadata` | Provider-specific metadata (JSON)      |
 
 ### Code Changes
 
-| Component | Old | New |
-|-----------|-----|-----|
-| **Service** | `GeminiFileSearchService()` | `get_provider(name)` |
-| **Import** | `from ...gemini_service import GeminiFileSearchService` | `from ...providers.helpers import get_provider` |
-| **Commands** | Gemini-specific | Provider-aware with `--provider` flag |
-| **API** | Gemini-only | Multi-provider with provider selection |
+| Component    | Old                                                     | New                                             |
+| ------------ | ------------------------------------------------------- | ----------------------------------------------- |
+| **Service**  | `GeminiFileSearchService()`                             | `get_provider(name)`                            |
+| **Import**   | `from ...gemini_service import GeminiFileSearchService` | `from ...providers.helpers import get_provider` |
+| **Commands** | Gemini-specific                                         | Provider-aware with `--provider` flag           |
+| **API**      | Gemini-only                                             | Multi-provider with provider selection          |
 
 ## Migration Steps
 
@@ -50,6 +50,7 @@ docker compose run --rm foia_coach_api \
 ```
 
 The migration will:
+
 - Add new provider fields
 - Copy `gemini_file_id` → `provider_file_id`
 - Set `provider='gemini'` for existing resources
@@ -106,6 +107,7 @@ docker compose run --rm foia_coach_api \
 If you have custom code calling the service directly:
 
 #### Before:
+
 ```python
 from apps.jurisdiction.services.gemini_service import GeminiFileSearchService
 
@@ -114,6 +116,7 @@ result = service.query(question="What is the deadline?", state="CO")
 ```
 
 #### After:
+
 ```python
 from apps.jurisdiction.services.providers.helpers import get_provider
 
@@ -129,6 +132,7 @@ result = provider.query(question="What is the deadline?", state="CO")
 Tests automatically use MockProvider, but if you have custom tests:
 
 #### Before:
+
 ```python
 from apps.jurisdiction.services.gemini_service import GeminiFileSearchService
 
@@ -139,6 +143,7 @@ def test_query(mock_client):
 ```
 
 #### After:
+
 ```python
 from apps.jurisdiction.services.providers.helpers import get_provider
 
@@ -196,6 +201,7 @@ docker compose restart
 **Symptom:** Uploaded resources to Gemini, but queries to OpenAI don't see them
 
 **Solution:** Resources must be uploaded to each provider separately:
+
 ```bash
 python manage.py gemini_sync_all --provider=openai --all
 ```
@@ -205,6 +211,7 @@ python manage.py gemini_sync_all --provider=openai --all
 **Symptom:** `provider` field is `None` for existing resources
 
 **Solution:** Run data migration again or manually update:
+
 ```sql
 UPDATE jurisdiction_jurisdictionresource
 SET provider = 'gemini'
@@ -216,6 +223,7 @@ WHERE gemini_file_id IS NOT NULL AND provider IS NULL;
 **Symptom:** Getting "API calls are disabled" error in production
 
 **Solution:** Ensure `*_REAL_API_ENABLED=true` is set:
+
 ```bash
 export OPENAI_REAL_API_ENABLED=true
 export GEMINI_REAL_API_ENABLED=true
@@ -226,6 +234,7 @@ export GEMINI_REAL_API_ENABLED=true
 **Symptom:** Tests making real API calls
 
 **Solution:** Verify test settings use MockProvider:
+
 ```python
 # In config/settings/test.py
 RAG_PROVIDER = 'mock'
@@ -274,11 +283,11 @@ provider = get_provider('gemini')
 
 Different providers have different performance characteristics:
 
-| Provider | Upload Time | Query Latency | Best For |
-|----------|-------------|---------------|----------|
-| **OpenAI** | ~5-10s per file | ~2-3s | Quality |
-| **Gemini** | ~3-5s per file | ~1-2s | Speed |
-| **Mock** | Instant | Instant | Testing |
+| Provider   | Upload Time     | Query Latency | Best For |
+| ---------- | --------------- | ------------- | -------- |
+| **OpenAI** | ~5-10s per file | ~2-3s         | Quality  |
+| **Gemini** | ~3-5s per file  | ~1-2s         | Speed    |
+| **Mock**   | Instant         | Instant       | Testing  |
 
 ### Cost Impact
 

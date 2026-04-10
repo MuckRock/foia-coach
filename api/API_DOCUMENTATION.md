@@ -7,6 +7,7 @@ The FOIA Coach API provides access to jurisdiction-specific FOIA resources and R
 **Base URL:** `http://localhost:8001/api/v1/`
 
 **Architecture:**
+
 - Standalone Django service (port 8001)
 - Separate PostgreSQL database (`foia_coach`)
 - Integrates with main MuckRock API for jurisdiction data
@@ -31,6 +32,7 @@ Fetch all state-level jurisdictions from the main MuckRock API.
 **Endpoint:** `GET /api/v1/jurisdictions/`
 
 **Response:**
+
 ```json
 {
   "count": 50,
@@ -48,6 +50,7 @@ Fetch all state-level jurisdictions from the main MuckRock API.
 ```
 
 **Fields:**
+
 - `id` - Jurisdiction ID from main MuckRock database
 - `name` - Full jurisdiction name
 - `slug` - URL-friendly identifier
@@ -66,6 +69,7 @@ Retrieve details for a specific jurisdiction by abbreviation.
 **Example:** `GET /api/v1/jurisdictions/CO/`
 
 **Response:**
+
 ```json
 {
   "id": 127,
@@ -86,6 +90,7 @@ Fetch jurisdiction resources (FOIA guides, exemptions, case law, etc.).
 **Endpoint:** `GET /api/v1/resources/`
 
 **Query Parameters:**
+
 - `jurisdiction_id` - Filter by jurisdiction ID
 - `jurisdiction_abbrev` - Filter by state abbreviation (e.g., `?jurisdiction_abbrev=CO`)
 - `resource_type` - Filter by type (`law_guide`, `request_tips`, `exemptions`, etc.)
@@ -96,6 +101,7 @@ Fetch jurisdiction resources (FOIA guides, exemptions, case law, etc.).
 **Example:** `GET /api/v1/resources/?jurisdiction_abbrev=CO&resource_type=law_guide`
 
 **Response:**
+
 ```json
 {
   "count": 1,
@@ -123,6 +129,7 @@ Fetch jurisdiction resources (FOIA guides, exemptions, case law, etc.).
 ```
 
 **Resource Types:**
+
 - `law_guide` - State FOIA law guides
 - `request_tips` - Tips for making effective requests
 - `exemptions` - Exemptions guides
@@ -131,6 +138,7 @@ Fetch jurisdiction resources (FOIA guides, exemptions, case law, etc.).
 - `general` - General information
 
 **Index Status:**
+
 - `pending` - Waiting to be uploaded to Gemini
 - `uploading` - Currently uploading
 - `indexing` - Being indexed by Gemini
@@ -158,6 +166,7 @@ Execute a natural language query against indexed jurisdiction resources using Ge
 **Endpoint:** `POST /api/v1/query/query/`
 
 **Request Body:**
+
 ```json
 {
   "question": "What is the response time for FOIA requests in Colorado?",
@@ -168,12 +177,14 @@ Execute a natural language query against indexed jurisdiction resources using Ge
 ```
 
 **Fields:**
+
 - `question` (required) - Natural language question
 - `state` (optional) - State abbreviation to scope the query
 - `context` (optional) - Additional context as JSON object
 - `model` (optional) - Gemini model to use (default: `gemini-2.0-flash-exp`)
 
 **Response:**
+
 ```json
 {
   "answer": "In Colorado, agencies must respond within 3 business days to acknowledge receipt and provide a timeline. The actual records should be produced 'as soon as practicable,' typically within 7 business days.",
@@ -189,6 +200,7 @@ Execute a natural language query against indexed jurisdiction resources using Ge
 ```
 
 **Error Response:**
+
 ```json
 {
   "error": "Query failed: <error message>",
@@ -198,6 +210,7 @@ Execute a natural language query against indexed jurisdiction resources using Ge
 ```
 
 **Notes:**
+
 - Queries are rate-limited by Gemini API quotas
 - Only queries resources with `index_status: "ready"`
 - Citations include source documents used to generate the answer
@@ -220,26 +233,31 @@ The API is configured to accept requests from the following origins:
 The following Django management commands are available for administration:
 
 ### Create/Verify Gemini Store
+
 ```bash
 docker compose exec foia_coach_api python manage.py gemini_create_store
 ```
 
 ### Upload Single Resource
+
 ```bash
 docker compose exec foia_coach_api python manage.py gemini_upload_resource <resource_id>
 ```
 
 ### Sync All Resources
+
 ```bash
 docker compose exec foia_coach_api python manage.py gemini_sync_all
 ```
 
 Options:
+
 - `--state CO` - Only sync resources for specific state
 - `--resource-type law_guide` - Only sync specific resource type
 - `--force` - Re-upload resources even if already indexed
 
 ### Test Query
+
 ```bash
 docker compose exec foia_coach_api python manage.py gemini_query "What is the response time in Colorado?" --state CO
 ```
@@ -251,16 +269,19 @@ docker compose exec foia_coach_api python manage.py gemini_query "What is the re
 ### Using curl
 
 **List jurisdictions:**
+
 ```bash
 curl http://localhost:8001/api/v1/jurisdictions/ | python3 -m json.tool
 ```
 
 **Get Colorado resources:**
+
 ```bash
 curl http://localhost:8001/api/v1/resources/?jurisdiction_abbrev=CO | python3 -m json.tool
 ```
 
 **Submit query:**
+
 ```bash
 curl -X POST http://localhost:8001/api/v1/query/query/ \
   -H "Content-Type: application/json" \
@@ -297,11 +318,13 @@ print(query_result['answer'])
 **Separate Database:** The FOIA Coach API uses its own PostgreSQL database (`foia_coach`), completely isolated from the main MuckRock database.
 
 **Connection Details:**
+
 - Host: `foia_coach_postgres` (Docker network) / `localhost:5433` (from host)
 - Database: `foia_coach`
 - User: `foia_coach_user`
 
 **Tables:**
+
 - `foia_coach_jurisdictionresource` - Jurisdiction-specific FOIA resources
 - Django core tables (auth, sessions, etc.)
 
@@ -336,15 +359,19 @@ print(query_result['answer'])
 ### Troubleshooting
 
 **Issue:** API returns empty results
+
 - **Solution:** Check that resources exist and have `is_active=True` and `index_status='ready'`
 
 **Issue:** Jurisdiction endpoint returns 503
+
 - **Solution:** Ensure main MuckRock Django service is running on port 8000
 
 **Issue:** Query endpoint returns 500
+
 - **Solution:** Check Gemini API quota limits and verify resources are indexed
 
 **Issue:** CORS errors in browser
+
 - **Solution:** Ensure SvelteKit dev server is on port 5173, or update CORS settings
 
 ---
@@ -365,6 +392,7 @@ print(query_result['answer'])
 ## Support
 
 For issues or questions:
+
 - GitHub: https://github.com/MuckRock/muckrock
 - Check logs: `docker compose logs foia_coach_api`
 - Admin interface: http://localhost:8001/admin/

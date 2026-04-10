@@ -74,6 +74,7 @@ docker compose run --rm foia_coach_api \
 ```
 
 **What this does:**
+
 - Creates a new Vector Store in your OpenAI account
 - Names it "FOIA Coach Resources"
 - Returns the store ID (starts with `vs_`)
@@ -116,6 +117,7 @@ docker compose run --rm foia_coach_api \
 ```
 
 **What this does:**
+
 - Uploads the file to OpenAI's storage
 - Adds it to the Vector Store
 - Updates the resource record with `provider_file_id`
@@ -232,12 +234,12 @@ Create `src/lib/api/foiaCoach.ts`:
 ```typescript
 // src/lib/api/foiaCoach.ts
 
-const FOIA_COACH_API_URL = 'http://localhost:8001/api/v1';
+const FOIA_COACH_API_URL = "http://localhost:8001/api/v1";
 
 export interface QueryRequest {
   question: string;
   state?: string;
-  provider?: 'openai' | 'gemini' | 'mock';
+  provider?: "openai" | "gemini" | "mock";
   model?: string;
   context?: Record<string, any>;
 }
@@ -260,9 +262,9 @@ export interface ProviderStatus {
   current_provider: string;
   available_providers: string[];
   api_status: {
-    openai: 'enabled' | 'disabled';
-    gemini: 'enabled' | 'disabled';
-    mock: 'always_enabled';
+    openai: "enabled" | "disabled";
+    gemini: "enabled" | "disabled";
+    mock: "always_enabled";
   };
   status: string;
   message: string;
@@ -277,7 +279,7 @@ export interface Resource {
   description: string;
   resource_type: string;
   provider: string;
-  index_status: 'pending' | 'ready' | 'error';
+  index_status: "pending" | "ready" | "error";
   indexed_at: string | null;
   is_active: boolean;
   created_at: string;
@@ -316,16 +318,16 @@ class FOIACoachClient {
    */
   async query(request: QueryRequest): Promise<QueryResponse> {
     const response = await fetch(`${this.baseUrl}/query/query/`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(request),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Query failed');
+      throw new Error(error.error || "Query failed");
     }
 
     return response.json();
@@ -342,13 +344,13 @@ class FOIACoachClient {
     const url = new URL(`${this.baseUrl}/resources/`);
 
     if (params?.state) {
-      url.searchParams.set('jurisdiction_abbrev', params.state);
+      url.searchParams.set("jurisdiction_abbrev", params.state);
     }
     if (params?.provider) {
-      url.searchParams.set('provider', params.provider);
+      url.searchParams.set("provider", params.provider);
     }
     if (params?.index_status) {
-      url.searchParams.set('index_status', params.index_status);
+      url.searchParams.set("index_status", params.index_status);
     }
 
     const response = await fetch(url.toString());
@@ -391,9 +393,10 @@ Update the client to use environment variables:
 
 ```typescript
 // src/lib/api/foiaCoach.ts
-import { PUBLIC_FOIA_COACH_API_URL } from '$env/static/public';
+import { PUBLIC_FOIA_COACH_API_URL } from "$env/static/public";
 
-const FOIA_COACH_API_URL = PUBLIC_FOIA_COACH_API_URL || 'http://localhost:8001/api/v1';
+const FOIA_COACH_API_URL =
+  PUBLIC_FOIA_COACH_API_URL || "http://localhost:8001/api/v1";
 ```
 
 ---
@@ -833,6 +836,7 @@ Create `src/lib/components/ProviderStatus.svelte`:
 **Error:** `Authentication failed` or `Invalid API key`
 
 **Solution:**
+
 1. Verify your API key is correct
 2. Check it's properly set in `.envs/.local/.foia_coach_api`
 3. Restart the service: `docker compose restart foia_coach_api`
@@ -843,6 +847,7 @@ Create `src/lib/components/ProviderStatus.svelte`:
 **Error:** `OpenAI API calls are disabled`
 
 **Solution:**
+
 1. Set `OPENAI_REAL_API_ENABLED=true` in your environment file
 2. Restart services
 3. Verify: Check `/api/v1/query/status/` shows `openai: enabled`
@@ -852,6 +857,7 @@ Create `src/lib/components/ProviderStatus.svelte`:
 **Error:** Query returns empty or says no citations
 
 **Solution:**
+
 1. Check resources are uploaded: `docker compose run --rm foia_coach_api python manage.py shell`
    ```python
    from apps.jurisdiction.models import JurisdictionResource
@@ -882,6 +888,7 @@ CORS_ALLOW_ALL_ORIGINS = True  # Only for local development!
 **Symptom:** Queries take 10+ seconds
 
 **Solutions:**
+
 1. Use streaming for better UX (implement in SvelteKit with Server-Sent Events)
 2. Switch to `gpt-4o-mini` for faster responses:
    ```bash
@@ -894,6 +901,7 @@ CORS_ALLOW_ALL_ORIGINS = True  # Only for local development!
 **Symptom:** OpenAI bills are high
 
 **Solutions:**
+
 1. Monitor usage in OpenAI dashboard
 2. Use `gpt-4o-mini` instead of `gpt-4o` (10x cheaper)
 3. Implement rate limiting in your SvelteKit app

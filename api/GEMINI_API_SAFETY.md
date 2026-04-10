@@ -7,6 +7,7 @@ This document outlines safety measures implemented to prevent accidental Gemini 
 ## The Problem
 
 During initial development (Dec 9-10, 2025), we sent **107,800 Gemini API requests** in two days due to:
+
 1. Infinite recursion bug in signal handlers (before fix)
 2. Tests making real API calls instead of using mocks
 3. Multiple API calls per operation (upload = 3-12+ requests)
@@ -33,6 +34,7 @@ GeminiFileSearchService._track_request()  # Called before each API call
 ```
 
 **View statistics in code:**
+
 ```python
 from apps.jurisdiction.services.gemini_service import GeminiFileSearchService
 
@@ -63,10 +65,12 @@ GEMINI_REAL_API_ENABLED=true  # ⚠️ USE CAREFULLY!
 ```
 
 **Behavior:**
+
 - When `False`: Service initializes with `client=None`, all API methods raise `RuntimeError`
 - When `True`: Normal operation, API calls proceed (will consume quota)
 
 **Warning on startup:**
+
 ```
 ⚠️ GEMINI_REAL_API_ENABLED is False - Real API calls are DISABLED.
 Set GEMINI_REAL_API_ENABLED=true in environment to enable.
@@ -77,17 +81,20 @@ Set GEMINI_REAL_API_ENABLED=true in environment to enable.
 **Location**: `apps/jurisdiction/tests/conftest.py`
 
 All tests automatically:
+
 1. **Disable API calls**: `GEMINI_REAL_API_ENABLED = False`
 2. **Disconnect signals**: Prevents automatic uploads on model saves
 3. **Reset tracking**: Clears request counts between tests
 4. **Mock API client**: All test methods use `@patch('...genai.Client')`
 
 **Test settings**: `config/settings/test.py`
+
 ```python
 GEMINI_REAL_API_ENABLED = False  # CRITICAL SAFETY MEASURE
 ```
 
 **Special fixture for tests that need API enabled:**
+
 ```python
 def test_something(gemini_service_with_real_api_enabled):
     # API is enabled BUT client is still mocked
@@ -112,6 +119,7 @@ def upload_resource_to_gemini(sender, instance, created, **kwargs):
 ```
 
 **This prevents the infinite loop:**
+
 1. Save with `status='pending'` → Signal fires → Upload starts
 2. Update to `status='uploading'` → Signal fires but returns early
 3. Update to `status='ready'` → Signal fires but returns early
@@ -121,12 +129,14 @@ def upload_resource_to_gemini(sender, instance, created, **kwargs):
 ### During Development
 
 **Default (Recommended):**
+
 ```bash
 # Leave GEMINI_REAL_API_ENABLED=false in .envs/.local/.foia_coach_api
 # All API calls will be blocked with helpful error messages
 ```
 
 **When you NEED real API calls:**
+
 ```bash
 # 1. Set environment variable
 GEMINI_REAL_API_ENABLED=true
@@ -175,6 +185,7 @@ docker compose run --rm foia_coach_api \
 ## Request Limits
 
 ### Gemini Free Tier (as of Dec 2024)
+
 - **60 QPM** (Queries Per Minute)
 - **1,500 QPD** (Queries Per Day)
 - **50,000 TPM** (Tokens Per Minute)
@@ -182,17 +193,20 @@ docker compose run --rm foia_coach_api \
 ### Our API Call Patterns
 
 **Per Resource Upload:**
+
 - List stores: 1 request
 - Upload file: 1 request
 - Poll status: 0-10 requests (if needed)
 - **Total: 2-12 requests per upload**
 
 **Per Query:**
+
 - Get store: 1 request
 - Generate content: 1 request
 - **Total: 2 requests per query**
 
 **Per Delete:**
+
 - Get store: 1 request
 - Delete file: 1 request
 - **Total: 2 requests per delete**
@@ -249,6 +263,7 @@ GeminiFileSearchService.reset_request_tracking()
 ### Immediate Actions
 
 1. **Stop making API calls:**
+
    ```bash
    # Disable API immediately
    GEMINI_REAL_API_ENABLED=false
@@ -256,6 +271,7 @@ GeminiFileSearchService.reset_request_tracking()
    ```
 
 2. **Check request count:**
+
    ```python
    GeminiFileSearchService.get_request_stats()
    ```
@@ -272,6 +288,7 @@ GeminiFileSearchService.reset_request_tracking()
    - Verify status checks in signal handlers
 
 2. **Confirm tests are using mocks:**
+
    ```bash
    # Tests should complete in seconds, not minutes
    docker compose run --rm foia_coach_api pytest -v
@@ -302,12 +319,14 @@ If you need more than free tier limits:
    - Pay per token beyond free tier
 
 **Estimated costs (as of Dec 2024):**
+
 - Gemini 1.5 Flash: $0.075 / 1M input tokens
 - 100k requests ~= $7.50 (very rough estimate)
 
 ## Best Practices Summary
 
 ### ✅ DO:
+
 - Keep `GEMINI_REAL_API_ENABLED=false` by default
 - Watch logs for request count warnings
 - Use mocked API client in tests
@@ -316,6 +335,7 @@ If you need more than free tier limits:
 - Monitor Google Cloud Console quotas
 
 ### ❌ DON'T:
+
 - Enable real API calls without monitoring
 - Run tests against real API
 - Create resources in loops without checking signal status
@@ -327,6 +347,7 @@ If you need more than free tier limits:
 If you suspect runaway API usage:
 
 1. **Stop all services immediately:**
+
    ```bash
    docker compose down
    ```

@@ -116,11 +116,13 @@ Table "public.foia_coach_jurisdictionresource"
 ## Why This Happens in Shared Database Setups
 
 ### Normal Django Setup (Single App)
+
 - One Django app → One database
 - Permission IDs auto-increment sequentially
 - No conflicts
 
 ### Our Shared Database Setup
+
 - Two Django apps → One shared database
 - Main MuckRock has ~150 models × 4 permissions each = ~600 permission IDs used
 - FOIA Coach API tries to create permissions starting from ID 1
@@ -133,12 +135,14 @@ Table "public.foia_coach_jurisdictionresource"
 **Status**: ✅ Implemented
 
 The error is cosmetic - it occurs after the critical migration work is done:
+
 - Tables are created correctly
 - Indexes are created correctly
 - Model operations work fine
 - Only permission creation fails (not critical for API service)
 
 **Verification**:
+
 ```bash
 # Model works despite permission error
 >>> from apps.jurisdiction.models import JurisdictionResource
@@ -171,6 +175,7 @@ Create a separate PostgreSQL database for FOIA Coach API:
 
 **Pros**: Complete isolation, no conflicts
 **Cons**:
+
 - Can't share jurisdiction table with main app
 - More complex deployment
 - Not aligned with current architecture goals
@@ -185,6 +190,7 @@ Configure Django to use separate permission sequences per app:
 ## Impact Assessment
 
 ### What Works
+
 - ✅ Table creation and schema
 - ✅ Model CRUD operations
 - ✅ Migrations tracking (`showmigrations`)
@@ -193,10 +199,12 @@ Configure Django to use separate permission sequences per app:
 - ✅ All application logic
 
 ### What Doesn't Work
+
 - ❌ Permission objects for FOIA Coach models (not critical)
 - ❌ Clean migration output (cosmetic)
 
 ### Risk Level
+
 **LOW** - The error is cosmetic and doesn't affect functionality
 
 ## Recommendations

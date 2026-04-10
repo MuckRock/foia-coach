@@ -33,7 +33,7 @@ services:
     container_name: foia_coach_ui_local
     volumes:
       - ./ui:/app:z
-      - /app/node_modules  # Prevent host node_modules from overriding container
+      - /app/node_modules # Prevent host node_modules from overriding container
     ports:
       - "5173:5173"
     command: npm run dev -- --host 0.0.0.0

@@ -3,12 +3,14 @@
 ## Quick Start - Stay Safe
 
 ### Default Configuration (SAFE)
+
 ```bash
 # In .envs/.local/.foia_coach_api
 GEMINI_REAL_API_ENABLED=false  # ✅ API calls BLOCKED
 ```
 
 ### When You Need Real API Calls
+
 ```bash
 # 1. Enable temporarily
 GEMINI_REAL_API_ENABLED=true  # ⚠️ Will consume quota!
@@ -27,12 +29,14 @@ docker compose restart foia_coach_api
 ## Why This Matters
 
 **During initial development (Dec 9-10, 2025):**
+
 - Sent **107,800 API requests** in 2 days
 - Exhausted free tier quota (1,500/day limit)
 - Got 429 (Too Many Requests) errors
 - Caused by infinite loop bug + missing mocks
 
 **Free tier limits:**
+
 - 60 requests per minute
 - 1,500 requests per day
 - Each resource upload = 2-12 requests
@@ -49,12 +53,14 @@ docker compose restart foia_coach_api
 ## Common Scenarios
 
 ### Running Tests (Always Safe)
+
 ```bash
 docker compose run --rm foia_coach_api pytest
 # ✅ Uses mocked API, won't consume quota
 ```
 
 ### Manual Testing
+
 ```bash
 # Will fail by default (safe!)
 docker compose run --rm foia_coach_api \
@@ -64,6 +70,7 @@ docker compose run --rm foia_coach_api \
 ```
 
 ### Development Work
+
 ```bash
 # Code changes, migrations, etc - all safe by default
 # API is disabled unless you explicitly enable it
@@ -72,12 +79,14 @@ docker compose run --rm foia_coach_api \
 ## If You Hit Rate Limits
 
 1. **Stop immediately:**
+
    ```bash
    GEMINI_REAL_API_ENABLED=false
    docker compose restart foia_coach_api
    ```
 
 2. **Check request count:**
+
    ```python
    from apps.jurisdiction.services.gemini_service import GeminiFileSearchService
    stats = GeminiFileSearchService.get_request_stats()
@@ -85,6 +94,7 @@ docker compose run --rm foia_coach_api \
    ```
 
 3. **Review logs:**
+
    ```bash
    docker compose logs foia_coach_api | grep "⚠️"
    ```
@@ -94,6 +104,7 @@ docker compose run --rm foia_coach_api \
 ## Full Documentation
 
 See `GEMINI_API_SAFETY.md` for:
+
 - Detailed safety measures
 - Request monitoring
 - Best practices

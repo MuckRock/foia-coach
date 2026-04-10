@@ -20,11 +20,11 @@ The FOIA Coach API uses a flexible provider architecture that supports multiple 
 
 ### Available Providers
 
-| Provider | Description | Best For | API Required |
-|----------|-------------|----------|--------------|
-| **OpenAI** | Uses OpenAI's Vector Stores and Assistants API | Production use, highest quality responses | Yes |
-| **Gemini** | Uses Google's Gemini File Search | Alternative production option, cost-effective | Yes |
-| **Mock** | Fake responses for testing | Testing, development without API costs | No |
+| Provider   | Description                                    | Best For                                      | API Required |
+| ---------- | ---------------------------------------------- | --------------------------------------------- | ------------ |
+| **OpenAI** | Uses OpenAI's Vector Stores and Assistants API | Production use, highest quality responses     | Yes          |
+| **Gemini** | Uses Google's Gemini File Search               | Alternative production option, cost-effective | Yes          |
+| **Mock**   | Fake responses for testing                     | Testing, development without API costs        | No           |
 
 ### Provider Selection
 
@@ -131,6 +131,7 @@ Options:
 ```
 
 Examples:
+
 ```bash
 # Test default provider
 python manage.py test_rag_provider
@@ -198,6 +199,7 @@ GET /api/v1/query/status/
 ```
 
 Response:
+
 ```json
 {
   "current_provider": "openai",
@@ -219,6 +221,7 @@ POST /api/v1/query/query/
 ```
 
 Request:
+
 ```json
 {
   "question": "What is the response time in Colorado?",
@@ -229,6 +232,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "answer": "In Colorado, agencies must respond within 3 business days...",
@@ -250,32 +254,35 @@ See [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) for complete API reference.
 
 ### Feature Comparison
 
-| Feature | OpenAI | Gemini | Mock |
-|---------|--------|--------|------|
-| **Cost** | $$ | $ | Free |
-| **Response Quality** | Excellent | Very Good | N/A |
-| **Speed** | Fast | Very Fast | Instant |
-| **Max Files** | 10,000 per store | Unlimited | Unlimited |
-| **File Size Limit** | 512 MB | 2 GB | N/A |
-| **Context Window** | 128K tokens | 2M tokens | N/A |
-| **Streaming** | Yes | Yes | Yes |
-| **Citations** | Yes | Yes | Yes |
+| Feature              | OpenAI           | Gemini    | Mock      |
+| -------------------- | ---------------- | --------- | --------- |
+| **Cost**             | $$               | $         | Free      |
+| **Response Quality** | Excellent        | Very Good | N/A       |
+| **Speed**            | Fast             | Very Fast | Instant   |
+| **Max Files**        | 10,000 per store | Unlimited | Unlimited |
+| **File Size Limit**  | 512 MB           | 2 GB      | N/A       |
+| **Context Window**   | 128K tokens      | 2M tokens | N/A       |
+| **Streaming**        | Yes              | Yes       | Yes       |
+| **Citations**        | Yes              | Yes       | Yes       |
 
 ### When to Use Each Provider
 
 **OpenAI:**
+
 - Production environments requiring highest quality responses
 - When you need detailed, accurate citations
 - Complex queries requiring advanced reasoning
 - Budget allows for premium service
 
 **Gemini:**
+
 - Cost-conscious production deployments
 - Very large documents (>512 MB)
 - Queries requiring large context windows
 - High-volume scenarios
 
 **Mock:**
+
 - Testing without API costs
 - CI/CD pipelines
 - Development environments
@@ -284,16 +291,19 @@ See [API_DOCUMENTATION.md](./API_DOCUMENTATION.md) for complete API reference.
 ### Cost Comparison
 
 **OpenAI:**
+
 - Vector Store: $0.10 per GB/day
 - Assistant API: $0.03 per 1K tokens (input) + $0.06 per 1K tokens (output)
 - Estimated: ~$5-10/month for typical usage
 
 **Gemini:**
+
 - File Search: Free tier available (15 RPM limit)
 - Gemini 2.0 Flash: Free for moderate usage
 - Estimated: $0-5/month for typical usage
 
 **Mock:**
+
 - Always free
 - No API calls made
 
@@ -377,6 +387,7 @@ foia-coach-api/
 To add a new RAG provider:
 
 1. Create provider class in `apps/jurisdiction/services/providers/`:
+
    ```python
    from .base import RAGProviderBase
 
@@ -389,6 +400,7 @@ To add a new RAG provider:
    ```
 
 2. Register in `__init__.py`:
+
    ```python
    RAGProviderFactory.register_provider('myprovider', MyProvider)
    ```
@@ -404,6 +416,7 @@ To add a new RAG provider:
 **Error:** `API calls are disabled`
 
 **Solution:** Set the appropriate `*_REAL_API_ENABLED=true` flag:
+
 ```bash
 export OPENAI_REAL_API_ENABLED=true
 # or
@@ -415,6 +428,7 @@ export GEMINI_REAL_API_ENABLED=true
 **Error:** `Provider 'xyz' not found`
 
 **Solution:** Check available providers:
+
 ```bash
 python manage.py test_rag_provider --list
 ```
@@ -426,6 +440,7 @@ Valid providers: `openai`, `gemini`, `mock`
 **Error:** `Authentication failed`
 
 **Solution:** Verify your API key is set correctly:
+
 ```bash
 # For OpenAI
 export OPENAI_API_KEY=sk-...
@@ -439,6 +454,7 @@ export GEMINI_API_KEY=...
 **Error:** `API quota exceeded`
 
 **Solution:**
+
 - Wait for quota to reset (usually 1 minute)
 - Upgrade to paid tier
 - Switch to alternate provider

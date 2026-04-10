@@ -25,6 +25,7 @@ docker compose run --rm foia_coach_api \
 ```
 
 Output:
+
 ```
 Available RAG Providers:
   - openai (current)
@@ -187,6 +188,7 @@ curl http://localhost:8001/api/v1/query/status/
 ```
 
 Response:
+
 ```json
 {
   "current_provider": "openai",
@@ -212,6 +214,7 @@ curl -X POST http://localhost:8001/api/v1/query/query/ \
 ```
 
 Response:
+
 ```json
 {
   "answer": "In Colorado, agencies must respond to FOIA requests within 3 business days...",

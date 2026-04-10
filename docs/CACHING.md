@@ -1,14 +1,17 @@
 # FOIA Coach - Jurisdictions Caching Implementation
 
 ## Overview
+
 Implemented localStorage caching for the jurisdictions dropdown to improve performance and reduce API calls.
 
 ## Implementation Details
 
 ### New Files
+
 - `ui/src/lib/stores/jurisdictions.svelte.ts` - Cached jurisdictions store
 
 ### Modified Files
+
 - `ui/src/lib/components/QueryForm.svelte` - Uses cached store instead of direct API calls
 
 ## How It Works
@@ -33,7 +36,7 @@ Implemented localStorage caching for the jurisdictions dropdown to improve perfo
 ## Store API
 
 ```typescript
-import { jurisdictionsStore } from '$lib/stores/jurisdictions.svelte';
+import { jurisdictionsStore } from "$lib/stores/jurisdictions.svelte";
 
 // Load jurisdictions (uses cache if available)
 await jurisdictionsStore.load();
@@ -45,9 +48,9 @@ await jurisdictionsStore.reload();
 jurisdictionsStore.clear();
 
 // Access data
-jurisdictionsStore.jurisdictions // Jurisdiction[]
-jurisdictionsStore.loading       // boolean
-jurisdictionsStore.error          // string | null
+jurisdictionsStore.jurisdictions; // Jurisdiction[]
+jurisdictionsStore.loading; // boolean
+jurisdictionsStore.error; // string | null
 ```
 
 ## Benefits
@@ -60,6 +63,7 @@ jurisdictionsStore.error          // string | null
 ## Console Logs
 
 The store logs its behavior:
+
 - `Using cached jurisdictions` - Cache hit
 - `Jurisdictions cache is stale, will refetch` - Cache expired
 - `Fetching jurisdictions from API...` - API call in progress

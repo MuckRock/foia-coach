@@ -4,16 +4,16 @@
 
 **Last Updated:** 2025-12-12
 
-| Phase | Status | Completed | Notes |
-|-------|--------|-----------|-------|
-| Phase 1: Abstract Provider Interface | ✅ Complete | 2025-12-12 | Base class, factory, and exceptions created (commit: 1b57f0033) |
-| Phase 2: OpenAI Provider Implementation | ✅ Complete | 2025-12-12 | OpenAI provider with Vector Stores + Responses API (commit: eea812dda) |
-| Phase 3: Refactor Gemini to Provider Pattern | ✅ Complete | 2025-12-12 | Gemini provider wrapping existing service (pending commit) |
-| Phase 4: Provider Configuration & Selection | ✅ Complete | 2025-12-12 | Helper utilities, validation, and test command (pending commit) |
-| Phase 5: Update Models & Signals | ✅ Complete | 2025-12-12 | Provider-agnostic fields, migration, and updated signals (pending commit) |
-| Phase 6: Test Infrastructure & Mocking | ✅ Complete | 2025-12-12 | MockProvider, test settings, and safety measures (pending commit) |
-| Phase 7: Management Commands & API Updates | ✅ Complete | 2025-12-12 | All commands and API endpoints are provider-aware (pending commit) |
-| Phase 8: Documentation & Testing | ✅ Complete | 2025-12-12 | Comprehensive docs, examples, and all tests passing (pending commit) |
+| Phase                                        | Status      | Completed  | Notes                                                                     |
+| -------------------------------------------- | ----------- | ---------- | ------------------------------------------------------------------------- |
+| Phase 1: Abstract Provider Interface         | ✅ Complete | 2025-12-12 | Base class, factory, and exceptions created (commit: 1b57f0033)           |
+| Phase 2: OpenAI Provider Implementation      | ✅ Complete | 2025-12-12 | OpenAI provider with Vector Stores + Responses API (commit: eea812dda)    |
+| Phase 3: Refactor Gemini to Provider Pattern | ✅ Complete | 2025-12-12 | Gemini provider wrapping existing service (pending commit)                |
+| Phase 4: Provider Configuration & Selection  | ✅ Complete | 2025-12-12 | Helper utilities, validation, and test command (pending commit)           |
+| Phase 5: Update Models & Signals             | ✅ Complete | 2025-12-12 | Provider-agnostic fields, migration, and updated signals (pending commit) |
+| Phase 6: Test Infrastructure & Mocking       | ✅ Complete | 2025-12-12 | MockProvider, test settings, and safety measures (pending commit)         |
+| Phase 7: Management Commands & API Updates   | ✅ Complete | 2025-12-12 | All commands and API endpoints are provider-aware (pending commit)        |
+| Phase 8: Documentation & Testing             | ✅ Complete | 2025-12-12 | Comprehensive docs, examples, and all tests passing (pending commit)      |
 
 ---
 
@@ -24,12 +24,14 @@ Refactor the FOIA Coach API to support multiple LLM service providers (OpenAI, G
 ## Problem Statement
 
 **Current Issues:**
+
 - Tightly coupled to Gemini API (File Search specific)
 - Gemini API quota limits causing development issues
 - Unable to compare quality/cost across different LLM providers
 - Single point of failure if Gemini has issues
 
 **Solution:**
+
 - Abstract provider interface for RAG operations
 - OpenAI implementation using Vector Stores + Assistants API
 - Gemini implementation adapted to match interface
@@ -80,12 +82,14 @@ Refactor the FOIA Coach API to support multiple LLM service providers (OpenAI, G
 ### Provider Metadata Strategy
 
 **Model Fields (Provider-Agnostic):**
+
 - `provider` - String field: 'openai', 'gemini', 'mock'
 - `provider_file_id` - Generic file/document ID from provider
 - `provider_store_id` - Generic store/vector store ID from provider
 - `provider_metadata` - JSONField for provider-specific data
 
 **Backward Compatibility:**
+
 - Keep existing `gemini_file_id` field for migration period
 - Copy to `provider_file_id` when provider='gemini'
 - Eventually deprecate and remove `gemini_*` fields
@@ -94,24 +98,25 @@ Refactor the FOIA Coach API to support multiple LLM service providers (OpenAI, G
 
 ## OpenAI vs Gemini API Comparison
 
-| Feature | Gemini File Search | OpenAI File Search (Responses API) |
-|---------|-------------------|-------------------|
-| **Storage** | File Search Store | Vector Store |
-| **File Upload** | Direct to store | Upload file, then add to vector store |
-| **Querying** | generate_content() with tools | responses.create() with file_search tool |
-| **Streaming** | generate_content_stream() | responses.create(stream=True) |
-| **Context** | Inline in prompt | Inline in input parameter |
-| **Citations** | grounding_metadata | annotations in message content |
-| **Rate Limits (Free tier)** | 60 RPM, 2M TPM | 100 RPM (Tier 1) |
-| **File Size Limit** | 10 MB | 512 MB per file |
-| **Supported Formats** | Text, PDF, DOCX, etc. | Text, PDF, DOCX, XLSX, PPTX, code files |
-| **API Complexity** | Medium | Simple (no assistants/threads) |
+| Feature                     | Gemini File Search            | OpenAI File Search (Responses API)       |
+| --------------------------- | ----------------------------- | ---------------------------------------- |
+| **Storage**                 | File Search Store             | Vector Store                             |
+| **File Upload**             | Direct to store               | Upload file, then add to vector store    |
+| **Querying**                | generate_content() with tools | responses.create() with file_search tool |
+| **Streaming**               | generate_content_stream()     | responses.create(stream=True)            |
+| **Context**                 | Inline in prompt              | Inline in input parameter                |
+| **Citations**               | grounding_metadata            | annotations in message content           |
+| **Rate Limits (Free tier)** | 60 RPM, 2M TPM                | 100 RPM (Tier 1)                         |
+| **File Size Limit**         | 10 MB                         | 512 MB per file                          |
+| **Supported Formats**       | Text, PDF, DOCX, etc.         | Text, PDF, DOCX, XLSX, PPTX, code files  |
+| **API Complexity**          | Medium                        | Simple (no assistants/threads)           |
 
 ---
 
 ## Implementation Phases
 
 Each phase is designed to:
+
 - **Complete in 45-90 minutes** (manageable chunks)
 - Fit within single Claude Code session
 - Result in a working, committable state
@@ -119,6 +124,7 @@ Each phase is designed to:
 - Build incrementally on previous phases
 
 **Critical Testing Requirement:**
+
 - NO live API calls in any automated tests
 - All tests must use mocks or the MockProvider
 - Safety checks enforced via environment variables
@@ -134,6 +140,7 @@ Each phase is designed to:
 #### Tasks
 
 1. **Create provider base class** (apps/jurisdiction/services/providers/base.py)
+
    ```python
    """
    Abstract base class for RAG providers.
@@ -352,6 +359,7 @@ Each phase is designed to:
    ```
 
 2. **Create provider factory** (apps/jurisdiction/services/providers/factory.py)
+
    ```python
    """
    Factory for creating RAG provider instances.
@@ -479,7 +487,8 @@ Each phase is designed to:
            return list(cls._providers.keys())
    ```
 
-3. **Create __init__.py for providers package** (apps/jurisdiction/services/providers/__init__.py)
+3. **Create **init**.py for providers package** (apps/jurisdiction/services/providers/**init**.py)
+
    ```python
    """
    RAG Provider implementations for FOIA Coach.
@@ -513,6 +522,7 @@ Each phase is designed to:
 - [ ] Import tests pass
 
 **Commit Message:**
+
 ```
 feat(foia-coach): Add abstract RAG provider interface
 
@@ -547,18 +557,21 @@ docker compose run --rm foia_coach_api python manage.py shell
 #### Tasks
 
 1. **Add OpenAI dependency** (requirements.in)
+
    ```
    # OpenAI
    openai>=1.54.0
    ```
 
    Then compile:
+
    ```bash
    docker compose run --rm foia_coach_api pip-compile requirements.in
    docker compose build foia_coach_api
    ```
 
 2. **Create OpenAI provider** (apps/jurisdiction/services/providers/openai_provider.py)
+
    ```python
    """
    OpenAI provider implementation using Vector Stores and Responses API.
@@ -969,7 +982,8 @@ docker compose run --rm foia_coach_api python manage.py shell
                }
    ```
 
-3. **Register OpenAI provider** (apps/jurisdiction/services/providers/__init__.py)
+3. **Register OpenAI provider** (apps/jurisdiction/services/providers/**init**.py)
+
    ```python
    """
    RAG Provider implementations for FOIA Coach.
@@ -992,6 +1006,7 @@ docker compose run --rm foia_coach_api python manage.py shell
    ```
 
 4. **Add OpenAI settings** (config/settings/base.py)
+
    ```python
    # OpenAI API Configuration
    OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
@@ -1014,6 +1029,7 @@ docker compose run --rm foia_coach_api python manage.py shell
    ```
 
 5. **Add environment variables** (.envs/.local/.foia_coach_api)
+
    ```bash
    # OpenAI Configuration
    OPENAI_API_KEY=your_openai_api_key_here
@@ -1046,6 +1062,7 @@ docker compose run --rm foia_coach_api python manage.py shell
 - [ ] Basic functionality verified
 
 **Commit Message:**
+
 ```
 feat(foia-coach): Implement OpenAI RAG provider
 
@@ -1088,7 +1105,7 @@ False  # Safety check: API calls disabled by default
    - Keep all existing functionality (request tracking, MIME types, etc.)
    - Return standardized response format
 
-2. **Register Gemini provider** in factory and __init__.py
+2. **Register Gemini provider** in factory and **init**.py
 
 3. **Keep old service for backward compatibility** (optional)
    - Can keep apps/jurisdiction/services/gemini_service.py as deprecated
@@ -1111,6 +1128,7 @@ False  # Safety check: API calls disabled by default
 - [ ] Tests updated to use provider
 
 **Commit Message:**
+
 ```
 refactor(foia-coach): Adapt Gemini to provider interface
 
@@ -1209,6 +1227,7 @@ Part of Phase 3: Refactor Gemini to Provider Pattern
    - Configurable behavior for testing different scenarios
 
 2. **Update test configuration** (config/settings/test.py)
+
    ```python
    # Force mock provider in tests
    RAG_PROVIDER = 'mock'
@@ -1346,6 +1365,7 @@ GEMINI_REAL_API_ENABLED=true docker compose run --rm foia_coach_api \
 ### Environment Variables
 
 **.envs/.local/.foia_coach_api:**
+
 ```bash
 # Provider Selection
 RAG_PROVIDER=openai  # or 'gemini' or 'mock'
@@ -1365,15 +1385,15 @@ GEMINI_REAL_API_ENABLED=false
 
 ### Provider Comparison
 
-| Feature | OpenAI | Gemini |
-|---------|--------|--------|
-| **API Style** | Responses API | Generate Content |
-| **Cost (Free Tier)** | Limited free credits | 60 RPM free |
-| **Rate Limits** | 500 RPM, 200K TPM | 60 RPM, 2M TPM |
-| **Max File Size** | 512 MB | 10 MB |
-| **Streaming** | ✅ Native | ✅ Native |
-| **Citations** | File annotations | Grounding metadata |
-| **Context Window** | 128K tokens (gpt-4.1) | 1M tokens (flash) |
+| Feature              | OpenAI                | Gemini             |
+| -------------------- | --------------------- | ------------------ |
+| **API Style**        | Responses API         | Generate Content   |
+| **Cost (Free Tier)** | Limited free credits  | 60 RPM free        |
+| **Rate Limits**      | 500 RPM, 200K TPM     | 60 RPM, 2M TPM     |
+| **Max File Size**    | 512 MB                | 10 MB              |
+| **Streaming**        | ✅ Native             | ✅ Native          |
+| **Citations**        | File annotations      | Grounding metadata |
+| **Context Window**   | 128K tokens (gpt-4.1) | 1M tokens (flash)  |
 
 ---
 
@@ -1382,23 +1402,27 @@ GEMINI_REAL_API_ENABLED=false
 ### For Existing Deployments
 
 1. **Install OpenAI SDK:**
+
    ```bash
    # Already in requirements.txt after Phase 2
    pip install openai>=1.54.0
    ```
 
 2. **Run migrations:**
+
    ```bash
    python manage.py migrate
    ```
 
 3. **Set OpenAI API key:**
+
    ```bash
    export OPENAI_API_KEY=sk-...
    export OPENAI_REAL_API_ENABLED=true
    ```
 
 4. **Switch provider:**
+
    ```bash
    export RAG_PROVIDER=openai
    ```
@@ -1420,6 +1444,7 @@ GEMINI_REAL_API_ENABLED=false
 ## Success Metrics
 
 ### Technical Success
+
 - [ ] All providers implement RAGProviderBase
 - [ ] Factory pattern working
 - [ ] No live API calls in automated tests
@@ -1427,6 +1452,7 @@ GEMINI_REAL_API_ENABLED=false
 - [ ] New provider tests pass
 
 ### Functional Success
+
 - [ ] Can upload to OpenAI
 - [ ] Can query OpenAI
 - [ ] Can switch providers via config
@@ -1434,6 +1460,7 @@ GEMINI_REAL_API_ENABLED=false
 - [ ] Citations work with both providers
 
 ### Process Success
+
 - [ ] Each phase completes in ~1 hour
 - [ ] Clean commits after each phase
 - [ ] No breaking changes to existing code
@@ -1448,6 +1475,7 @@ GEMINI_REAL_API_ENABLED=false
 **Risk:** Accidental API usage in tests or development
 
 **Mitigation:**
+
 - REAL_API_ENABLED defaults to False
 - MockProvider for all tests
 - Clear warnings when API calls disabled
@@ -1458,6 +1486,7 @@ GEMINI_REAL_API_ENABLED=false
 **Risk:** One provider unavailable
 
 **Mitigation:**
+
 - Support multiple providers
 - Can switch providers via config
 - Graceful error handling
@@ -1468,8 +1497,9 @@ GEMINI_REAL_API_ENABLED=false
 **Risk:** Breaking changes during migration
 
 **Mitigation:**
+
 - Backward compatible model changes
-- Keep gemini_* fields during transition
+- Keep gemini\_\* fields during transition
 - Gradual migration path
 - Rollback plan
 
@@ -1518,17 +1548,17 @@ If provider abstraction causes issues:
 
 ## Estimated Timeline
 
-| Phase | Description | Time Estimate | Complexity |
-|-------|-------------|---------------|------------|
-| Phase 1 | Abstract interface | 45-60 min | Medium |
-| Phase 2 | OpenAI provider | 60-90 min | High |
-| Phase 3 | Gemini refactor | 45-60 min | Medium |
-| Phase 4 | Configuration | 30-45 min | Low |
-| Phase 5 | Models & signals | 45-60 min | Medium |
-| Phase 6 | Test infrastructure | 45-60 min | Medium |
-| Phase 7 | Commands & API | 45-60 min | Medium |
-| Phase 8 | Documentation | 45-60 min | Low |
-| **Total** | | **6-9 hours** | |
+| Phase     | Description         | Time Estimate | Complexity |
+| --------- | ------------------- | ------------- | ---------- |
+| Phase 1   | Abstract interface  | 45-60 min     | Medium     |
+| Phase 2   | OpenAI provider     | 60-90 min     | High       |
+| Phase 3   | Gemini refactor     | 45-60 min     | Medium     |
+| Phase 4   | Configuration       | 30-45 min     | Low        |
+| Phase 5   | Models & signals    | 45-60 min     | Medium     |
+| Phase 6   | Test infrastructure | 45-60 min     | Medium     |
+| Phase 7   | Commands & API      | 45-60 min     | Medium     |
+| Phase 8   | Documentation       | 45-60 min     | Low        |
+| **Total** |                     | **6-9 hours** |            |
 
 ---
 
@@ -1568,15 +1598,18 @@ If provider abstraction causes issues:
 ## Additional Resources
 
 ### OpenAI Documentation
+
 - Vector Stores: https://platform.openai.com/docs/api-reference/vector-stores
 - Assistants API: https://platform.openai.com/docs/assistants/overview
 - File Search: https://platform.openai.com/docs/assistants/tools/file-search
 
 ### Gemini Documentation
+
 - File Search: https://ai.google.dev/gemini-api/docs/file-search
 - Python SDK: https://github.com/googleapis/python-genai
 
 ### Design Patterns
+
 - Abstract Factory Pattern
 - Strategy Pattern
 - Dependency Injection
