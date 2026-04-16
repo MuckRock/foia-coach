@@ -22,3 +22,4 @@ factory-boy
 # Utilities
 python-dotenv
 requests>=2.31.0
+gunicorn
