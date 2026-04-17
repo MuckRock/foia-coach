@@ -26,9 +26,12 @@ distro==1.9.0
     # via
     #   google-genai
     #   openai
+dj-database-url==3.1.2
+    # via -r requirements.in
 django==4.2.30
     # via
     #   -r requirements.in
+    #   dj-database-url
     #   django-cors-headers
     #   django-filter
     #   djangorestframework
