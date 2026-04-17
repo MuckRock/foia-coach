@@ -9,7 +9,7 @@ services:
     plan: free
     name: foia-coach-api
     runtime: python
-    buildCommand: "./api/build.sh"
+    buildCommand: "cd api && ./build.sh"
     startCommand: "cd api && python -m gunicorn config.wsgi:application"
     envVars:
       - key: DATABASE_URL
