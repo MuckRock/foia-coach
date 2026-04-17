@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { PUBLIC_API_URL } from '$env/static/public';
 import systemPrompt from './system-prompt.md?raw';
 
 // Settings interface
@@ -12,7 +13,7 @@ export interface Settings {
 
 // Default settings
 const defaultSettings: Settings = {
-	apiUrl: 'http://localhost:8001',
+	apiUrl: PUBLIC_API_URL || 'http://localhost:8001',
 	apiToken: '',
 	provider: 'openai',
 	model: 'gpt-4o-mini',

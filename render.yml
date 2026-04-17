@@ -1,0 +1,58 @@
+databases:
+  - name: foia-coach-db
+    plan: free
+    databaseName: foia_coach
+    user: foia_coach_user
+
+services:
+  - type: web
+    plan: free
+    name: foia-coach-api
+    runtime: python
+    buildCommand: "./api/build.sh"
+    startCommand: "cd api && python -m gunicorn config.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: foia-coach-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.render
+      - key: RAG_PROVIDER
+        value: mock
+      - key: MUCKROCK_API_URL
+        sync: false
+      - key: CORS_ALLOWED_ORIGIN
+        sync: false
+      - key: MUCKROCK_API_TOKEN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_FILE_SEARCH_STORE_NAME
+        value: StatePublicRecordsStore
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
+      - key: GEMINI_REAL_API_ENABLED
+        value: "false"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_VECTOR_STORE_NAME
+        value: StatePublicRecordsStore
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_REAL_API_ENABLED
+        value: "false"
+
+  - type: web
+    plan: free
+    name: foia-coach
+    runtime: node
+    buildCommand: cd ui && npm install && npm run build
+    startCommand: cd ui && node build
+    envVars:
+      - key: PUBLIC_API_URL
+        sync: false

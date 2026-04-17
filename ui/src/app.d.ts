@@ -7,6 +7,10 @@ declare module '*.md?raw' {
 	export default content;
 }
 
+declare module '$env/static/public' {
+	export const PUBLIC_API_URL: string;
+}
+
 declare global {
 	namespace App {
 		// interface Error {}

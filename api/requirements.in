@@ -24,3 +24,4 @@ dj-database-url
 gunicorn
 python-dotenv
 requests>=2.31.0
+whitenoise[brotli]
