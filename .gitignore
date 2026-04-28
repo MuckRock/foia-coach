@@ -27,6 +27,7 @@ build/
 api/media/
 api/foia_coach_seed_data.tar.gz
 api/fixtures/
+*.tar.gz
 
 # IDE
 .vscode/

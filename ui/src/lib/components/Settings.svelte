@@ -14,7 +14,7 @@
 			const success = await apiClient.testConnection();
 			testResult = success ? 'Connection successful!' : 'Connection failed';
 		} catch (e) {
-			testResult = `Error: ${e.message}`;
+			testResult = `Error: ${e instanceof Error ? e.message : String(e)}`;
 		} finally {
 			testing = false;
 		}
@@ -59,11 +59,7 @@
 
 	<div class="field">
 		<label for="provider">AI Provider</label>
-		<select
-			id="provider"
-			bind:value={settingsStore.settings.provider}
-			required
-		>
+		<select id="provider" bind:value={settingsStore.settings.provider} required>
 			<option value="openai">OpenAI</option>
 			<option value="gemini">Google Gemini</option>
 			<option value="mock">Mock (Testing)</option>
@@ -101,8 +97,8 @@
 			required
 		></textarea>
 		<small>
-			The system instruction that defines the AI's behavior and response style.
-			This applies to all providers (OpenAI, Gemini, Mock).
+			The system instruction that defines the AI's behavior and response style. This applies to all
+			providers (OpenAI, Gemini, Mock).
 		</small>
 	</div>
 
