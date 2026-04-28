@@ -1,10 +1,14 @@
 """
 Serializers for FOIA Coach API
 """
+import logging
 import os
 from django.db import models
+from requests.exceptions import RequestException
 from rest_framework import serializers
 from apps.jurisdiction.models import ExampleResponse, JurisdictionResource, NFOICPartner
+
+logger = logging.getLogger(__name__)
 
 
 class JurisdictionSerializer(serializers.Serializer):
@@ -63,8 +67,16 @@ class JurisdictionResourceSerializer(serializers.ModelSerializer):
         ]
 
     def get_jurisdiction_name(self, obj):
-        """Fetch jurisdiction name from MuckRock API"""
-        jurisdiction = obj.jurisdiction
+        """Fetch jurisdiction name from MuckRock API, degrading to '' if unreachable."""
+        try:
+            jurisdiction = obj.jurisdiction
+        except RequestException as exc:
+            logger.warning(
+                "MuckRock lookup failed for jurisdiction_abbrev=%s: %s",
+                obj.jurisdiction_abbrev,
+                exc,
+            )
+            return ''
         if jurisdiction:
             return jurisdiction.get('name', '')
         return ''
